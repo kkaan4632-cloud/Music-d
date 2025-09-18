@@ -29,7 +29,7 @@
     .container {
       margin-top: 20px;
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
     }
 
     .section {
@@ -64,77 +64,319 @@
       cursor: pointer;
       font-weight: bold;
       color: #000;
+      margin-left: 6px;
     }
 
     .id-item button:hover {
       background: #00cc66;
+    }
+
+    /* Chat kutusu */
+    #chat {
+      background: #222;
+      height: 250px;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .chat-msg {
+      padding: 6px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      background: #2d2d2d;
+    }
+
+    .admin {
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .guest {
+      color: #00aaff;
+      font-weight: bold;
+    }
+
+    .chat-msg button {
+      background: red;
+      border: none;
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      color: white;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    /* Duyuru sabit */
+    #duyuru {
+      background: #ffcc00;
+      color: black;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* Admin panel */
+    #adminPanel {
+      display: none;
+      background: #111;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    input, select {
+      padding: 6px;
+      border-radius: 4px;
+      border: none;
+      margin: 4px;
+    }
+
+    #activeUsers {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #aaa;
+      text-align: right;
     }
   </style>
 </head>
 <body>
   <header>🎵 Roblox Müzik ID Paylaşım 🎵</header>
 
+  <div id="duyuru">📢 Yeni güncelleme yakında geliyor!</div>
+
   <div class="container">
     <!-- Normal Müzik Bölümü -->
-    <div class="section">
+    <div class="section" id="normalMusic">
       <h2>🎶 Normal Müzik</h2>
-      <div class="id-item">
-        114377669273691
-        <button onclick="copyID('114377669273691')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        134907421285608
-        <button onclick="copyID('134907421285608')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        104168792634229
-        <button onclick="copyID('104168792634229')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        74431247827459
-        <button onclick="copyID('74431247827459')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        130525432946828
-        <button onclick="copyID('130525432946828')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        99830662289112
-        <button onclick="copyID('99830662289112')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        118245433375755
-        <button onclick="copyID('118245433375755')">Kopyala</button>
-      </div>
-      <div class="id-item">
-        105008782996692
-        <button onclick="copyID('105008782996692')">Kopyala</button>
-      </div>
     </div>
 
-    <!-- Boş kategoriler (sen ekleyebilirsin) -->
+    <!-- Diğer kategoriler -->
     <div class="section">
       <h2>🔥 Phonk</h2>
       <p style="text-align:center; color:gray;">ID eklenmedi</p>
     </div>
-
     <div class="section">
       <h2>🎸 Rock</h2>
       <p style="text-align:center; color:gray;">ID eklenmedi</p>
     </div>
-
     <div class="section">
       <h2>🎧 Diğer</h2>
       <p style="text-align:center; color:gray;">ID eklenmedi</p>
     </div>
+
+    <!-- Chat -->
+    <div class="section">
+      <h2>💬 Sohbet</h2>
+      <div id="chat"></div>
+      <input type="text" id="chatInput" placeholder="Mesaj yaz...">
+      <button onclick="sendMessage()">Gönder</button>
+    </div>
+
+    <div id="activeUsers"></div>
+
+    <!-- Kullanıcı adı seçme -->
+    <div class="section">
+      <h2>👤 Kullanıcı Adı</h2>
+      <input type="text" id="nickname" placeholder="Yeni kullanıcı adı gir">
+      <button onclick="changeName()">Kaydet</button>
+    </div>
+
+    <!-- Admin Giriş -->
+    <div class="section">
+      <h2>🔑 Admin Girişi</h2>
+      <input type="password" id="adminPass" placeholder="Şifre gir">
+      <button onclick="loginAdmin()">Giriş</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel">
+      <h2>⚙️ Admin Paneli</h2>
+      <input type="text" id="newID" placeholder="Yeni ID ekle">
+      <button onclick="addID()">Ekle</button>
+      <br><br>
+      <input type="text" id="banUser" placeholder="Banlanacak kullanıcı adı">
+      <select id="banTime">
+        <option value="0">Kalıcı</option>
+        <option value="1">1 Saat</option>
+        <option value="24">24 Saat</option>
+      </select>
+      <button onclick="banUser()">Banla</button>
+      <br><br>
+      <input type="text" id="newDuyuru" placeholder="Yeni duyuru yaz">
+      <button onclick="changeDuyuru()">Duyuruyu Güncelle</button>
+    </div>
   </div>
 
   <script>
-    function copyID(id) {
-      navigator.clipboard.writeText(id).then(() => {
-        alert("ID kopyalandı: " + id);
+    let isAdmin = false;
+    let username = localStorage.getItem("nickname") || "Guest" + Math.floor(Math.random() * 1000);
+
+    // Normal Müzik ID listesi
+    let musicIDs = [
+      "114377669273691",
+      "134907421285608",
+      "104168792634229",
+      "74431247827459",
+      "130525432946828",
+      "99830662289112",
+      "118245433375755",
+      "105008782996692"
+    ];
+
+    function renderIDs() {
+      let container = document.getElementById("normalMusic");
+      container.innerHTML = "<h2>🎶 Normal Müzik</h2>";
+      musicIDs.forEach((id, index) => {
+        let div = document.createElement("div");
+        div.className = "id-item";
+        div.innerHTML = `
+          ${id}
+          <div>
+            <button onclick="copyID('${id}')">Kopyala</button>
+            ${isAdmin ? `<button onclick="deleteID(${index})">Sil</button>` : ""}
+          </div>`;
+        container.appendChild(div);
       });
     }
+
+    function copyID(id) {
+      navigator.clipboard.writeText(id);
+      alert("ID kopyalandı: " + id);
+    }
+
+    function deleteID(index) {
+      musicIDs.splice(index, 1);
+      renderIDs();
+    }
+
+    function addID() {
+      let newID = document.getElementById("newID").value.trim();
+      if (newID) {
+        musicIDs.push(newID);
+        renderIDs();
+      }
+    }
+
+    // Chat geçmişini yükle
+    function loadChat() {
+      let saved = localStorage.getItem("chatHistory");
+      if (saved) {
+        let chat = document.getElementById("chat");
+        chat.innerHTML = saved;
+        chat.scrollTop = chat.scrollHeight;
+      }
+    }
+
+    // Chat mesaj gönderme
+    function sendMessage() {
+      let input = document.getElementById("chatInput");
+      let msg = input.value.trim();
+      if (!msg) return;
+      if (checkBan()) return;
+
+      let chat = document.getElementById("chat");
+      let div = document.createElement("div");
+      div.className = "chat-msg";
+      div.innerHTML = `<span class="${isAdmin ? 'admin' : 'guest'}">${isAdmin ? 'Admin' : username}:</span> ${msg}
+        ${isAdmin ? `<button onclick="this.parentElement.remove(); saveChat()">Sil</button>` : ""}`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      input.value = "";
+
+      saveChat();
+    }
+
+    // Chat geçmişini kaydet
+    function saveChat() {
+      let chat = document.getElementById("chat").innerHTML;
+      localStorage.setItem("chatHistory", chat);
+    }
+
+    // Admin login
+    function loginAdmin() {
+      let pass = document.getElementById("adminPass").value;
+      if (pass === "NEONUM31") {
+        isAdmin = true;
+        alert("Admin girişi başarılı!");
+        document.getElementById("adminPanel").style.display = "block";
+        renderIDs();
+      } else {
+        alert("Hatalı şifre!");
+      }
+    }
+
+    // Ban sistemi
+    function banUser() {
+      let target = document.getElementById("banUser").value.trim();
+      let hours = parseInt(document.getElementById("banTime").value);
+      if (!target) return;
+
+      let expire = hours === 0 ? -1 : Date.now() + hours * 60 * 60 * 1000;
+      localStorage.setItem("ban_" + target, expire);
+      alert(target + " banlandı!");
+    }
+
+    function checkBan() {
+      let ban = localStorage.getItem("ban_" + username);
+      if (ban) {
+        if (ban == -1) {
+          alert("Banlandınız!");
+          return true;
+        } else if (Date.now() < parseInt(ban)) {
+          alert("Geçici uzaklaştırıldınız!");
+          return true;
+        } else {
+          localStorage.removeItem("ban_" + username);
+          return false;
+        }
+      }
+      return false;
+    }
+
+    // Duyuru güncelle
+    function changeDuyuru() {
+      let text = document.getElementById("newDuyuru").value.trim();
+      if (text) {
+        document.getElementById("duyuru").innerText = "📢 " + text;
+      }
+    }
+
+    // Kullanıcı adı değiştirme
+    function changeName() {
+      let newName = document.getElementById("nickname").value.trim();
+      if (newName) {
+        username = newName;
+        localStorage.setItem("nickname", newName);
+        alert("Kullanıcı adın güncellendi: " + newName);
+        updateActiveUsers();
+      }
+    }
+
+    // Aktif kullanıcı sayısı
+    function updateActiveUsers() {
+      let users = localStorage.getItem("activeUsers");
+      users = users ? JSON.parse(users) : [];
+      users = users.filter(u => Date.now() - u.time < 30000);
+      let existing = users.find(u => u.name === username);
+      if (existing) {
+        existing.time = Date.now();
+      } else {
+        users.push({ name: username, time: Date.now() });
+      }
+      localStorage.setItem("activeUsers", JSON.stringify(users));
+      document.getElementById("activeUsers").innerText = "Aktif kullanıcı: " + users.length;
+    }
+
+    setInterval(updateActiveUsers, 5000);
+
+    renderIDs();
+    updateActiveUsers();
+    loadChat();
   </script>
 </body>
 </html>
