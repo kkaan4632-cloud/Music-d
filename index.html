@@ -2,267 +2,138 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roblox Müzik ID Paylaşım</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
-      background-size: 1400% 1400%;
-      animation: rainbow 20s ease infinite;
-      color: #fff;
-    }
-    @keyframes rainbow {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-    header {
-      text-align: center;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
-    .announcement {
-      background: #f5f5f5;
-      color: #222;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    .announcement h2 {
-      margin: 0 0 10px 0;
-    }
-    .announcement ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .announcement li {
-      margin-bottom: 8px;
-      padding: 8px;
-      background: #fff;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-    }
-    .tabs {
+      background: linear-gradient(180deg, #000000, #1a1a1a, #2b2b2b);
+      color: white;
+      min-height: 100vh;
       display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
     }
-    .tabs button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #333;
-      color: #fff;
+
+    header {
+      background: #111;
+      color: #00ff88;
+      font-size: 28px;
       font-weight: bold;
-      cursor: pointer;
+      text-align: center;
+      padding: 20px;
+      width: 100%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    .tabs button.active {
-      background: #ff9800;
+
+    .container {
+      margin-top: 20px;
+      width: 90%;
+      max-width: 800px;
     }
-    .id-list {
+
+    .section {
+      background: #1c1c1c;
       margin-bottom: 20px;
-    }
-    .id-item {
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
       border-radius: 8px;
-      margin: 5px 0;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: #ff0055;
+      text-align: center;
+    }
+
+    .id-item {
+      background: #2a2a2a;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+
     .id-item button {
-      margin-left: 10px;
-      padding: 5px 8px;
+      background: #00ff88;
       border: none;
-      border-radius: 6px;
-      background: #ff9800;
-      color: #000;
+      padding: 6px 12px;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
-    }
-    .chat {
-      background: rgba(0,0,0,0.6);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    .chat-messages {
-      height: 200px;
-      overflow-y: auto;
-      background: #111;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-    .chat-message {
-      margin-bottom: 8px;
-      padding: 6px 8px;
-      border-radius: 6px;
-      background: #333;
-    }
-    .chat-message.admin {
-      background: #ff9800;
       color: #000;
-      font-weight: bold;
     }
-    .chat input {
-      width: 80%;
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-    }
-    .chat button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      background: #ff9800;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .footer {
-      text-align: center;
-      padding: 15px;
-      background: rgba(0,0,0,0.6);
-      margin-top: 20px;
+
+    .id-item button:hover {
+      background: #00cc66;
     }
   </style>
 </head>
 <body>
-  <header>
-    📢 Roblox Müzik ID Paylaşım | Aktif Kullanıcılar: <span id="activeUsers">1</span>
-  </header>
+  <header>🎵 Roblox Müzik ID Paylaşım 🎵</header>
 
   <div class="container">
-    <!-- Duyurular -->
-    <div class="announcement">
-      <h2>Duyurular</h2>
-      <ul>
-        <li>[18.09.2025] 🎶 Yeni kategori sistemi eklendi: Phonk, Rock, Rap, Pop!</li>
-        <li>[18.09.2025] ❤️ Beğen butonları aktif hale getirildi.</li>
-        <li>[18.09.2025] 🌈 Arka plan rainbow animasyonu eklendi.</li>
-        <li>[18.09.2025] 💬 Chat geliştirmeleri (saat, admin rengi) aktif.</li>
-      </ul>
+    <!-- Normal Müzik Bölümü -->
+    <div class="section">
+      <h2>🎶 Normal Müzik</h2>
+      <div class="id-item">
+        114377669273691
+        <button onclick="copyID('114377669273691')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        134907421285608
+        <button onclick="copyID('134907421285608')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        104168792634229
+        <button onclick="copyID('104168792634229')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        74431247827459
+        <button onclick="copyID('74431247827459')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        130525432946828
+        <button onclick="copyID('130525432946828')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        99830662289112
+        <button onclick="copyID('99830662289112')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        118245433375755
+        <button onclick="copyID('118245433375755')">Kopyala</button>
+      </div>
+      <div class="id-item">
+        105008782996692
+        <button onclick="copyID('105008782996692')">Kopyala</button>
+      </div>
     </div>
 
-    <!-- Kategoriler -->
-    <div class="tabs">
-      <button class="tab-button active" data-category="phonk">Phonk</button>
-      <button class="tab-button" data-category="rock">Rock</button>
-      <button class="tab-button" data-category="rap">Rap</button>
-      <button class="tab-button" data-category="pop">Pop</button>
+    <!-- Boş kategoriler (sen ekleyebilirsin) -->
+    <div class="section">
+      <h2>🔥 Phonk</h2>
+      <p style="text-align:center; color:gray;">ID eklenmedi</p>
     </div>
 
-    <!-- ID Listesi -->
-    <div id="idList" class="id-list"></div>
-    <button onclick="randomID()">🎲 Rastgele ID Öner</button>
+    <div class="section">
+      <h2>🎸 Rock</h2>
+      <p style="text-align:center; color:gray;">ID eklenmedi</p>
+    </div>
 
-    <!-- Chat -->
-    <div class="chat">
-      <div class="chat-messages" id="chatMessages"></div>
-      <input type="text" id="chatInput" placeholder="Mesaj yaz...">
-      <button onclick="sendMessage()">Gönder</button>
+    <div class="section">
+      <h2>🎧 Diğer</h2>
+      <p style="text-align:center; color:gray;">ID eklenmedi</p>
     </div>
   </div>
 
-  <div class="footer">© 2025 Roblox Müzik ID Paylaşım</div>
-
   <script>
-    // Aktif kullanıcı simülasyonu
-    document.getElementById("activeUsers").innerText = Math.floor(Math.random() * 50) + 1;
-
-    // ID verileri
-    const ids = {
-      phonk: [
-        "114377669273691",
-        "134907421285608",
-        "104168792634229"
-      ],
-      rock: [
-        "74431247827459",
-        "130525432946828"
-      ],
-      rap: [
-        "99830662289112",
-        "118245433375755"
-      ],
-      pop: [
-        "105008782996692"
-      ]
-    };
-
-    const idList = document.getElementById("idList");
-    function loadIDs(category) {
-      idList.innerHTML = "";
-      ids[category].forEach(id => {
-        const div = document.createElement("div");
-        div.className = "id-item";
-        div.innerHTML = `
-          <span>${id}</span>
-          <div>
-            <button onclick="copyID('${id}')">Kopyala</button>
-            <button onclick="likeID(this)">❤️ <span>0</span></button>
-          </div>
-        `;
-        idList.appendChild(div);
-      });
-    }
-    loadIDs("phonk");
-
-    // Tab kontrolü
-    document.querySelectorAll(".tab-button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        loadIDs(btn.dataset.category);
-      });
-    });
-
-    // Kopyalama
     function copyID(id) {
-      navigator.clipboard.writeText(id);
-      alert("ID kopyalandı: " + id);
-    }
-
-    // Beğeni
-    function likeID(button) {
-      const span = button.querySelector("span");
-      span.innerText = parseInt(span.innerText) + 1;
-    }
-
-    // Rastgele ID öner
-    function randomID() {
-      const all = [].concat(...Object.values(ids));
-      const random = all[Math.floor(Math.random() * all.length)];
-      alert("🎲 Önerilen ID: " + random);
-    }
-
-    // Chat
-    function sendMessage() {
-      const input = document.getElementById("chatInput");
-      const messages = document.getElementById("chatMessages");
-      if (input.value.trim() === "") return;
-
-      const div = document.createElement("div");
-      div.className = "chat-message";
-      const time = new Date().toLocaleTimeString("tr-TR", {hour: "2-digit", minute: "2-digit"});
-      div.innerText = `[${time}] Guest: ${input.value}`;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-      input.value = "";
+      navigator.clipboard.writeText(id).then(() => {
+        alert("ID kopyalandı: " + id);
+      });
     }
   </script>
 </body>
