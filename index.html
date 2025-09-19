@@ -2,289 +2,303 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Music Panel</title>
+  <title>🎵 Roblox Müzik ID Paylaşım 🎵</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
       margin: 0;
-      padding: 0;
-    }
-    .light {
-      background: #fff;
-      color: #111;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      min-height: 100vh;
     }
     header {
-      padding: 10px;
-      background: #222;
+      background: #1f1f1f;
+      padding: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ff99;
       text-align: center;
-    }
-    header button { margin: 5px; }
-    .container {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      height: calc(100vh - 50px);
+      width: 100%;
     }
     .sidebar {
-      background: #333;
-      padding: 10px;
-      overflow-y: auto;
+      width: 220px;
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
     }
-    .content {
-      padding: 10px;
-      overflow-y: auto;
-    }
-    .id-item { 
-      background: #444;
+    .sidebar button {
       margin: 5px 0;
-      padding: 5px;
-      border-radius: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #2b2b2b;
+      color: #fff;
+      cursor: pointer;
     }
-    .chat-box {
-      border: 1px solid #666;
-      height: 200px;
+    .sidebar button:hover { background: #444; }
+    .content {
+      flex: 1;
+      padding: 20px;
       overflow-y: auto;
-      padding: 5px;
-      margin-bottom: 10px;
-      background: #00000033;
     }
-    .chat-msg { margin: 3px 0; }
-    .admin-btn { color: red; cursor: pointer; margin-left: 5px; }
+    .section {
+      background: #1e1e1e;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    .section h2 { margin: 0 0 10px; color: #ff0055; }
+    .id-item {
+      display: flex;
+      justify-content: space-between;
+      background: #2a2a2a;
+      margin: 6px 0;
+      padding: 8px;
+      border-radius: 6px;
+    }
+    .id-item button {
+      margin-left: 5px;
+      background: #00ff88;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+    }
+    #chat {
+      height: 250px;
+      overflow-y: auto;
+      background: #2b2b2b;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .chat-msg {
+      margin-bottom: 6px;
+      padding: 6px;
+      background: #3a3a3a;
+      border-radius: 4px;
+    }
+    .admin { color: #ff4444; font-weight: bold; }
+    .owner { color: #ffd700; font-weight: bold; }
+    .guest { color: #00aaff; font-weight: bold; }
+    #duyuru {
+      background: #ffcc00;
+      color: #000;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    input, select {
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      margin: 4px 0;
+    }
     .hidden { display: none; }
+    .light-theme {
+      background: #f5f5f5;
+      color: #000;
+    }
+    .light-theme .section { background: #fff; }
+    .light-theme .sidebar { background: #ddd; }
+    .light-theme header { background: #ccc; color: #000; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🎶 Music Panel</h1>
-    <button onclick="toggleTheme()">🌗 Tema Değiştir</button>
-  </header>
-  <div class="container">
-    <div class="sidebar">
-      <h3>Kategoriler</h3>
-      <div id="normalMusic"></div>
-      <div id="phonkMusic"></div>
-      <div id="rockMusic"></div>
-      <div id="otherMusic"></div>
+  <div class="sidebar">
+    <button onclick="showSection('music')">🎶 Müzikler</button>
+    <button onclick="showSection('chat')">💬 Sohbet</button>
+    <button onclick="showSection('packages')">📦 Paketler</button>
+    <button onclick="showSection('adminLogin')">🔑 Admin Giriş</button>
+    <button onclick="showSection('ownerLogin')">👑 Owner Giriş</button>
+    <button onclick="toggleTheme()">🌙 Tema Değiştir</button>
+    <div id="activeUsers"></div>
+  </div>
 
-      <h3>⚡ Aktif Kullanıcılar</h3>
-      <div id="userList"></div>
+  <div class="content">
+    <header>🎵 Roblox Müzik ID Paylaşım 🎵</header>
+    <div id="duyuru">📢 Yeni güncelleme yakında!</div>
 
-      <h3>🔑 Admin Girişi</h3>
-      <input type="password" id="adminPass" placeholder="Şifre">
-      <button onclick="loginAdmin()">Giriş</button>
-
-      <h3>👑 Owner Girişi</h3>
-      <input type="password" id="ownerPass" placeholder="Owner Şifre">
-      <button onclick="loginOwner()">Giriş</button>
+    <!-- Müzikler -->
+    <div id="music" class="section">
+      <h2>🎶 Normal Müzik</h2>
+      <div id="normalList"></div>
+      <h2>🔥 Phonk</h2>
+      <div id="phonkList"></div>
+      <h2>🎸 Rock</h2>
+      <div id="rockList"></div>
+      <h2>🎧 Diğer</h2>
+      <div id="otherList"></div>
     </div>
-    <div class="content">
+
+    <!-- Sohbet -->
+    <div id="chatSection" class="section hidden">
       <h2>💬 Sohbet</h2>
-      <div class="chat-box" id="chat"></div>
+      <div id="chat"></div>
       <input type="text" id="chatInput" placeholder="Mesaj yaz...">
       <button onclick="sendMessage()">Gönder</button>
+    </div>
 
-      <div id="dmPanel" class="hidden">
-        <h3>📩 DM Kutusu (<span id="dmTarget"></span>)</h3>
-        <div class="chat-box" id="dmBox"></div>
-        <input type="text" id="dmInput" placeholder="Mesaj yaz...">
-        <button onclick="sendDM()">Gönder</button>
-      </div>
+    <!-- Paketler -->
+    <div id="packages" class="section hidden">
+      <h2>📦 Paketler</h2>
+      <p style="color:gray">Buraya paketlerini sen ekle reis.</p>
+    </div>
 
+    <!-- Admin Login -->
+    <div id="adminLogin" class="section hidden">
+      <h2>🔑 Admin Girişi</h2>
+      <input type="password" id="adminPass" placeholder="Şifre gir">
+      <button onclick="loginAdmin()">Giriş Yap</button>
       <div id="adminPanel" class="hidden">
-        <h2>🔧 Admin Paneli</h2>
-        <button onclick="announce()">📢 Duyuru Yap</button>
-        <p>Kullanıcıyı banla (dakika):</p>
-        <input type="text" id="banUser" placeholder="Kullanıcı adı">
-        <input type="number" id="banTime" value="10">
+        <h3>⚙️ Admin Paneli</h3>
+        <input type="text" id="newID" placeholder="Normal müzik ID ekle">
+        <button onclick="addID('normal')">Ekle</button>
+        <input type="text" id="banUser" placeholder="Banlanacak kullanıcı">
+        <select id="banTime">
+          <option value="0">Kalıcı</option>
+          <option value="1">1 Saat</option>
+          <option value="24">24 Saat</option>
+        </select>
         <button onclick="banUser()">Banla</button>
       </div>
+    </div>
 
+    <!-- Owner Login -->
+    <div id="ownerLogin" class="section hidden">
+      <h2>👑 Owner Girişi</h2>
+      <input type="password" id="ownerPass" placeholder="Şifre gir">
+      <button onclick="loginOwner()">Giriş Yap</button>
       <div id="ownerPanel" class="hidden">
-        <h2>👑 OWNER Paneli</h2>
-        <p>Etiket ver:</p>
-        <input type="text" id="tagUser" placeholder="Kullanıcı adı">
-        <input type="text" id="tagText" placeholder="Etiket">
-        <button onclick="giveTag()">Ver</button>
-
-        <p>Paket fiyat ayarla (Robux):</p>
-        <input type="text" id="pkgName" placeholder="Paket adı">
-        <input type="number" id="pkgPrice" placeholder="Fiyat">
-        <button onclick="setPackage()">Kaydet</button>
-        <div id="pkgList"></div>
+        <h3>🏅 Owner Paneli</h3>
+        <p>Buradan tüm admin işlemlerini yönetebilirsin.</p>
+        <input type="text" id="newPhonk" placeholder="Phonk ID ekle">
+        <button onclick="addID('phonk')">Ekle</button>
+        <input type="text" id="newRock" placeholder="Rock ID ekle">
+        <button onclick="addID('rock')">Ekle</button>
+        <input type="text" id="newOther" placeholder="Diğer ID ekle">
+        <button onclick="addID('other')">Ekle</button>
       </div>
     </div>
   </div>
 
-<script>
-let isAdmin = false;
-let isOwner = false;
-let username = "Guest" + Math.floor(Math.random()*1000);
-let users = [];
-let messages = [];
-let dmMessages = {};
-let packages = {};
-let bans = {};
+  <script>
+    let isAdmin = false;
+    let isOwner = false;
+    let username = "Guest" + Math.floor(Math.random()*1000);
 
-// ID listeleri
-let normalIDs = [];
-let phonkIDs = [];
-let rockIDs = [];
-let otherIDs = [];
+    // ID listeleri
+    let lists = {
+      normal: ["114377669273691","134907421285608"],
+      phonk: [],
+      rock: [],
+      other: []
+    };
 
-function renderCategory(divId, title, arr){
-  let div = document.getElementById(divId);
-  div.innerHTML = `<h4>${title}</h4>`;
-  arr.forEach((id,i)=>{
-    div.innerHTML += `<div class="id-item">${id}
-      ${isAdmin||isOwner?`<span class="admin-btn" onclick="deleteID('${divId}',${i})">Sil</span>`:""}
-    </div>`;
-  });
-  if(isAdmin||isOwner){
-    div.innerHTML += `<input id="new${divId}" placeholder="ID gir"><button onclick="addID('${divId}')">Ekle</button>`;
-  }
-}
+    function renderLists(){
+      for (let cat in lists){
+        let container = document.getElementById(cat+"List");
+        container.innerHTML = "";
+        lists[cat].forEach((id,i)=>{
+          let div = document.createElement("div");
+          div.className="id-item";
+          div.innerHTML=`
+            ${id}
+            <div>
+              <button onclick="copyID('${id}')">Kopyala</button>
+              ${(isAdmin||isOwner)? `<button onclick="deleteID('${cat}',${i})">Sil</button>`:""}
+            </div>`;
+          container.appendChild(div);
+        });
+      }
+    }
 
-function renderAll(){
-  renderCategory("normalMusic","🎵 Normal",normalIDs);
-  renderCategory("phonkMusic","🔥 Phonk",phonkIDs);
-  renderCategory("rockMusic","🎸 Rock",rockIDs);
-  renderCategory("otherMusic","🎧 Diğer",otherIDs);
-}
+    function copyID(id){navigator.clipboard.writeText(id);alert("ID kopyalandı: "+id);}
+    function deleteID(cat,i){lists[cat].splice(i,1);renderLists();}
+    function addID(cat){
+      let val=document.getElementById(cat==="normal"?"newID":cat==="phonk"?"newPhonk":cat==="rock"?"newRock":"newOther").value.trim();
+      if(val){lists[cat].push(val);renderLists();}
+    }
 
-function addID(type){
-  let input = document.getElementById("new"+type);
-  let val = input.value.trim();
-  if(!val) return;
-  if(type=="normalMusic") normalIDs.push(val);
-  if(type=="phonkMusic") phonkIDs.push(val);
-  if(type=="rockMusic") rockIDs.push(val);
-  if(type=="otherMusic") otherIDs.push(val);
-  input.value="";
-  renderAll();
-}
+    // Chat
+    function sendMessage(){
+      let input=document.getElementById("chatInput");
+      let msg=input.value.trim();
+      if(!msg) return;
+      if(checkBan()) return;
+      let chat=document.getElementById("chat");
+      let div=document.createElement("div");
+      div.className="chat-msg";
+      div.innerHTML=`<span class="${isOwner?'owner':isAdmin?'admin':'guest'}">${isOwner?'Owner':isAdmin?'Admin':username}:</span> ${msg} ${(isAdmin||isOwner)?`<button onclick="this.parentElement.remove()">Sil</button>`:""}`;
+      chat.appendChild(div);
+      chat.scrollTop=chat.scrollHeight;
+      input.value="";
+    }
 
-function deleteID(type,i){
-  if(type=="normalMusic") normalIDs.splice(i,1);
-  if(type=="phonkMusic") phonkIDs.splice(i,1);
-  if(type=="rockMusic") rockIDs.splice(i,1);
-  if(type=="otherMusic") otherIDs.splice(i,1);
-  renderAll();
-}
+    // Login
+    function loginAdmin(){
+      let pass=document.getElementById("adminPass").value;
+      if(pass==="NEONUM31"){isAdmin=true;alert("Admin girişi başarılı!");document.getElementById("adminPanel").classList.remove("hidden");renderLists();}
+      else alert("Hatalı şifre");
+    }
+    function loginOwner(){
+      let pass=document.getElementById("ownerPass").value;
+      if(pass==="OWNERNEON"){isOwner=true;isAdmin=true;alert("Owner girişi başarılı!");document.getElementById("ownerPanel").classList.remove("hidden");document.getElementById("adminPanel").classList.remove("hidden");renderLists();}
+      else alert("Hatalı şifre");
+    }
 
-function updateUserList(){
-  let ul = document.getElementById("userList");
-  ul.innerHTML = "";
-  users.forEach(u=>{
-    ul.innerHTML += `<div onclick="openDM('${u}')">${u} ${bans[u]?"(Banlı)":""}</div>`;
-  });
-}
+    // Ban
+    function banUser(){
+      let target=document.getElementById("banUser").value.trim();
+      let hours=parseInt(document.getElementById("banTime").value);
+      if(!target) return;
+      let expire=hours===0?-1:Date.now()+hours*60*60*1000;
+      localStorage.setItem("ban_"+target,expire);
+      alert(target+" banlandı!");
+    }
+    function checkBan(){
+      let ban=localStorage.getItem("ban_"+username);
+      if(ban){
+        if(ban==-1){alert("Banlandınız!");return true;}
+        else if(Date.now()<parseInt(ban)){alert("Geçici uzaklaştırıldınız!");return true;}
+        else{localStorage.removeItem("ban_"+username);}
+      }
+      return false;
+    }
 
-function sendMessage(){
-  let val = document.getElementById("chatInput").value.trim();
-  if(!val) return;
-  if(bans[username] && bans[username]>Date.now()){
-    alert("Banlısın!");
-    return;
-  }
-  messages.push({u:username,m:val});
-  document.getElementById("chatInput").value="";
-  renderChat();
-}
+    // Aktif kullanıcı
+    function updateActiveUsers(){
+      let users=localStorage.getItem("activeUsers");
+      users=users?JSON.parse(users):[];
+      users=users.filter(u=>Date.now()-u.time<30000);
+      let existing=users.find(u=>u.name===username);
+      if(existing){existing.time=Date.now();}else{users.push({name:username,time:Date.now()});}
+      localStorage.setItem("activeUsers",JSON.stringify(users));
+      document.getElementById("activeUsers").innerText="Aktif kullanıcı: "+users.length;
+    }
+    setInterval(updateActiveUsers,5000);
 
-function renderChat(){
-  let c = document.getElementById("chat");
-  c.innerHTML="";
-  messages.forEach(msg=>{
-    c.innerHTML+=`<div class="chat-msg"><b>${msg.u}:</b> ${msg.m}</div>`;
-  });
-  c.scrollTop=c.scrollHeight;
-}
+    // Tema
+    function toggleTheme(){document.body.classList.toggle("light-theme");}
 
-function openDM(target){
-  document.getElementById("dmPanel").classList.remove("hidden");
-  document.getElementById("dmTarget").innerText=target;
-  renderDM(target);
-}
+    // Navigasyon
+    function showSection(id){
+      ["music","chatSection","packages","adminLogin","ownerLogin"].forEach(s=>{
+        let el=document.getElementById(s);
+        if(el) el.classList.add("hidden");
+      });
+      if(id==="chat") id="chatSection";
+      document.getElementById(id).classList.remove("hidden");
+    }
 
-function sendDM(){
-  let target=document.getElementById("dmTarget").innerText;
-  let val=document.getElementById("dmInput").value.trim();
-  if(!val) return;
-  if(!dmMessages[target]) dmMessages[target]=[];
-  dmMessages[target].push({from:username,msg:val});
-  document.getElementById("dmInput").value="";
-  renderDM(target);
-}
-
-function renderDM(target){
-  let box=document.getElementById("dmBox");
-  box.innerHTML="";
-  (dmMessages[target]||[]).forEach(m=>{
-    box.innerHTML+=`<div><b>${m.from}:</b> ${m.msg}</div>`;
-  });
-  box.scrollTop=box.scrollHeight;
-}
-
-function loginAdmin(){
-  if(document.getElementById("adminPass").value=="1234"){
-    isAdmin=true;
-    document.getElementById("adminPanel").classList.remove("hidden");
-    renderAll();
-  }else alert("Yanlış şifre");
-}
-function loginOwner(){
-  if(document.getElementById("ownerPass").value=="OWNERNEON"){
-    isOwner=true;
-    document.getElementById("ownerPanel").classList.remove("hidden");
-    renderAll();
-  }else alert("Yanlış şifre");
-}
-
-function announce(){
-  let val=prompt("Duyuru mesajı:");
-  if(val){
-    messages.push({u:"📢 DUYURU",m:val});
-    renderChat();
-  }
-}
-
-function banUser(){
-  let u=document.getElementById("banUser").value;
-  let t=parseInt(document.getElementById("banTime").value)*60000;
-  bans[u]=Date.now()+t;
-  updateUserList();
-  alert(u+" banlandı!");
-}
-
-function giveTag(){
-  let u=document.getElementById("tagUser").value;
-  let t=document.getElementById("tagText").value;
-  messages.push({u:"OWNER",m:`${u} kişisine etiket verildi: ${t}`});
-  renderChat();
-}
-
-function setPackage(){
-  let n=document.getElementById("pkgName").value;
-  let p=document.getElementById("pkgPrice").value;
-  packages[n]=p;
-  renderPackages();
-}
-function renderPackages(){
-  let div=document.getElementById("pkgList");
-  div.innerHTML="";
-  for(let n in packages){
-    div.innerHTML+=`<div>${n}: ${packages[n]} Robux</div>`;
-  }
-}
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
-
-users.push(username);
-updateUserList();
-renderAll();
-</script>
+    renderLists();
+    updateActiveUsers();
+  </script>
 </body>
 </html>
