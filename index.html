@@ -17,7 +17,6 @@
     #activeUsers div { cursor:pointer; margin:4px; padding:4px; background:#222; border-radius:4px; }
     #activeUsers div:hover { background:#333; }
     #dmBox { display:none; position:fixed; bottom:20px; right:20px; width:250px; background:#222; padding:10px; border-radius:8px; }
-    #logs { background:#111; height:120px; overflow-y:auto; padding:10px; border-radius:6px; text-align:left; margin-top:10px; }
   </style>
 </head>
 <body>
@@ -40,19 +39,10 @@
       <!-- Duyuru -->
       <div id="duyuru" class="box">📢 Hoş geldiniz!</div>
 
-      <!-- ID Listeleri -->
+      <!-- Tek ID listesi -->
       <div class="box">
-        <h2>Normal Müzikler</h2>
-        <ul id="normalList"></ul>
-
-        <h2>Phonk</h2>
-        <ul id="phonkList"></ul>
-
-        <h2>Rock</h2>
-        <ul id="rockList"></ul>
-
-        <h2>Diğer</h2>
-        <ul id="otherList"></ul>
+        <h2>📀 Paylaşılan ID'ler</h2>
+        <ul id="sharedList"></ul>
       </div>
 
       <!-- Chat -->
@@ -90,9 +80,6 @@
           <option value="1440">1 Gün</option>
         </select>
         <button onclick="muteUser()">Sustur</button>
-
-        <h3>Logs</h3>
-        <div id="logs"></div>
       </div>
 
       <!-- Owner Panel -->
@@ -101,12 +88,6 @@
 
         <h3>ID Yönetimi</h3>
         <input type="text" id="ownerNewID" placeholder="Yeni ID">
-        <select id="idCategory">
-          <option value="normal">Normal</option>
-          <option value="phonk">Phonk</option>
-          <option value="rock">Rock</option>
-          <option value="other">Diğer</option>
-        </select>
         <button onclick="ownerAddID()">Ekle</button><br>
 
         <h3>Duyuru</h3>
@@ -122,27 +103,7 @@
         <h3>Tag Verme</h3>
         <input type="text" id="tagUser" placeholder="Kullanıcı">
         <input type="text" id="tagName" placeholder="Tag (VIP)">
-        <button onclick="giveTag()">Ver</button><br>
-
-        <h3>Ban/Mute (Owner)</h3>
-        <input type="text" id="ownerBanUser" placeholder="Banlanacak kullanıcı">
-        <select id="ownerBanTime">
-          <option value="0">Kalıcı</option>
-          <option value="1">1 Saat</option>
-          <option value="24">1 Gün</option>
-        </select>
-        <button onclick="banUser(true)">Banla</button><br>
-
-        <input type="text" id="ownerMuteUser" placeholder="Susturulacak kullanıcı">
-        <select id="ownerMuteTime">
-          <option value="5">5 Dakika</option>
-          <option value="60">1 Saat</option>
-          <option value="1440">1 Gün</option>
-        </select>
-        <button onclick="muteUser(true)">Sustur</button>
-
-        <h3>Logs</h3>
-        <div id="ownerLogs"></div>
+        <button onclick="giveTag()">Ver</button>
       </div>
     </div>
   </div>
@@ -192,10 +153,8 @@
 
     // ID Göster
     function renderIDs() {
-      document.getElementById("normalList").innerHTML = musicIDs.map(id => `<li>${id}</li>`).join("");
-      document.getElementById("phonkList").innerHTML = phonkIDs.map(id => `<li>${id}</li>`).join("");
-      document.getElementById("rockList").innerHTML = rockIDs.map(id => `<li>${id}</li>`).join("");
-      document.getElementById("otherList").innerHTML = otherIDs.map(id => `<li>${id}</li>`).join("");
+      let allIDs = [...musicIDs, ...phonkIDs, ...rockIDs, ...otherIDs];
+      document.getElementById("sharedList").innerHTML = allIDs.map(id => `<li>${id}</li>`).join("");
     }
 
     // Chat
@@ -225,41 +184,36 @@
     // Admin fonksiyonları
     function adminAddID() {
       let newID = document.getElementById("adminNewID").value.trim();
-      if(newID) { musicIDs.push(newID); renderIDs(); logAction("Admin ID ekledi: " + newID); }
+      if(newID) { musicIDs.push(newID); renderIDs(); alert("Yeni ID eklendi!"); }
     }
-    function banUser(isOwner=false) {
-      let target = isOwner ? document.getElementById("ownerBanUser").value.trim() : document.getElementById("banUser").value.trim();
-      let hours = parseInt(isOwner ? document.getElementById("ownerBanTime").value : document.getElementById("banTime").value);
+    function banUser() {
+      let target = document.getElementById("banUser").value.trim();
+      let hours = parseInt(document.getElementById("banTime").value);
       if(!target) return;
       let expire = hours === 0 ? -1 : Date.now() + hours*60*60*1000;
       localStorage.setItem("ban_" + target, expire);
-      logAction((isOwner ? "Owner" : "Admin") + " banladı: " + target);
+      alert(target + " banlandı!");
     }
-    function muteUser(isOwner=false) {
-      let target = isOwner ? document.getElementById("ownerMuteUser").value.trim() : document.getElementById("muteUser").value.trim();
-      let minutes = parseInt(isOwner ? document.getElementById("ownerMuteTime").value : document.getElementById("muteTime").value);
+    function muteUser() {
+      let target = document.getElementById("muteUser").value.trim();
+      let minutes = parseInt(document.getElementById("muteTime").value);
       if(!target) return;
       let expire = Date.now() + minutes*60*1000;
       localStorage.setItem("mute_" + target, expire);
-      logAction((isOwner ? "Owner" : "Admin") + " susturdu: " + target);
+      alert(target + " susturuldu!");
     }
 
     // Owner fonksiyonları
     function ownerAddID() {
       let newID = document.getElementById("ownerNewID").value.trim();
-      let cat = document.getElementById("idCategory").value;
       if(newID) {
-        if(cat==="normal") musicIDs.push(newID);
-        else if(cat==="phonk") phonkIDs.push(newID);
-        else if(cat==="rock") rockIDs.push(newID);
-        else otherIDs.push(newID);
+        musicIDs.push(newID);
         renderIDs();
-        logAction("Owner ID ekledi: " + newID);
       }
     }
     function setAnnouncement() {
       let msg = document.getElementById("newAnnouncement").value.trim();
-      if(msg) { document.getElementById("duyuru").innerText = "📢 " + msg; logAction("Owner duyuru yaptı: " + msg); }
+      if(msg) document.getElementById("duyuru").innerText = "📢 " + msg;
     }
     function addPackage() {
       let name = document.getElementById("newPackage").value.trim();
@@ -269,7 +223,6 @@
         let div = document.createElement("div");
         div.innerText = name + " - " + price + " Robux";
         list.appendChild(div);
-        logAction("Owner paket ekledi: " + name);
       }
     }
     function giveTag() {
@@ -277,18 +230,8 @@
       let tag = document.getElementById("tagName").value.trim();
       if(user && tag) {
         localStorage.setItem("tag_" + user, tag);
-        logAction("Owner tag verdi: " + user + " → " + tag);
+        alert(user + " artık " + tag + "!");
       }
-    }
-
-    // Logs
-    function logAction(text) {
-      let logs = document.getElementById("logs");
-      let ownerLogs = document.getElementById("ownerLogs");
-      let line = document.createElement("div");
-      line.innerText = new Date().toLocaleTimeString() + " - " + text;
-      if(logs) logs.appendChild(line);
-      if(ownerLogs) ownerLogs.appendChild(line.cloneNode(true));
     }
 
     // DM sistemi
