@@ -13,7 +13,7 @@
     button:hover { background:#444; }
     input, select { padding:6px; margin:5px; border-radius:4px; border:none; }
     .box { background:#1a1a1a; padding:15px; border-radius:8px; margin-top:20px; }
-    #chatBox, #dmMessages { background:#111; height:150px; overflow-y:auto; padding:10px; border-radius:6px; text-align:left; }
+    #chatBox, #dmMessages, #logsBox { background:#111; height:150px; overflow-y:auto; padding:10px; border-radius:6px; text-align:left; }
     #activeUsers div { cursor:pointer; margin:4px; padding:4px; background:#222; border-radius:4px; }
     #activeUsers div:hover { background:#333; }
     #dmBox { display:none; position:fixed; bottom:20px; right:20px; width:250px; background:#222; padding:10px; border-radius:8px; }
@@ -71,6 +71,7 @@
       <!-- Admin Panel -->
       <div id="adminPanel" class="box" style="display:none;">
         <h2>⚙️ Admin Paneli</h2>
+
         <input type="text" id="adminNewID" placeholder="Yeni ID ekle">
         <button onclick="adminAddID()">Ekle</button><br>
 
@@ -88,7 +89,12 @@
           <option value="60">1 Saat</option>
           <option value="1440">1 Gün</option>
         </select>
-        <button onclick="muteUser()">Sustur</button>
+        <button onclick="muteUser()">Sustur</button><br>
+
+        <button onclick="toggleChatMute()">Chat Mute Aç/Kapat</button>
+
+        <h3>📜 Logs</h3>
+        <div id="logsBox"></div>
       </div>
 
       <!-- Owner Panel -->
@@ -118,7 +124,29 @@
         <h3>Tag Verme</h3>
         <input type="text" id="tagUser" placeholder="Kullanıcı">
         <input type="text" id="tagName" placeholder="Tag (VIP)">
-        <button onclick="giveTag()">Ver</button>
+        <button onclick="giveTag()">Ver</button><br>
+
+        <h3>Ban / Mute</h3>
+        <input type="text" id="ownerBanUser" placeholder="Banlanacak kullanıcı">
+        <select id="ownerBanTime">
+          <option value="0">Kalıcı</option>
+          <option value="1">1 Saat</option>
+          <option value="24">1 Gün</option>
+        </select>
+        <button onclick="ownerBan()">Banla</button><br>
+
+        <input type="text" id="ownerMuteUser" placeholder="Susturulacak kullanıcı">
+        <select id="ownerMuteTime">
+          <option value="5">5 Dakika</option>
+          <option value="60">1 Saat</option>
+          <option value="1440">1 Gün</option>
+        </select>
+        <button onclick="ownerMute()">Sustur</button><br>
+
+        <button onclick="toggleChatMute()">Chat Mute Aç/Kapat</button>
+
+        <h3>📜 Logs</h3>
+        <div id="logsBoxOwner"></div>
       </div>
     </div>
   </div>
@@ -142,6 +170,7 @@
     let currentUser = null;
     let currentRole = "guest";
     let currentDM = null;
+    let chatMuted = false;
 
     // Giriş
     function login() {
@@ -176,6 +205,7 @@
 
     // Chat
     function sendMessage() {
+      if(chatMuted && currentRole === "guest") { alert("Sohbet kapalı!"); return; }
       let input = document.getElementById("chatInput");
       let msg = input.value.trim();
       if(!msg) return;
@@ -201,7 +231,7 @@
     // Admin fonksiyonları
     function adminAddID() {
       let newID = document.getElementById("adminNewID").value.trim();
-      if(newID) { musicIDs.push(newID); renderIDs(); alert("Yeni ID eklendi!"); }
+      if(newID) { musicIDs.push(newID); renderIDs(); logAction("Admin " + currentUser + " yeni ID ekledi: " + newID); }
     }
     function banUser() {
       let target = document.getElementById("banUser").value.trim();
@@ -209,7 +239,7 @@
       if(!target) return;
       let expire = hours === 0 ? -1 : Date.now() + hours*60*60*1000;
       localStorage.setItem("ban_" + target, expire);
-      alert(target + " banlandı!");
+      logAction("Admin " + currentUser + " " + target + " kullanıcısını banladı.");
     }
     function muteUser() {
       let target = document.getElementById("muteUser").value.trim();
@@ -217,7 +247,7 @@
       if(!target) return;
       let expire = Date.now() + minutes*60*1000;
       localStorage.setItem("mute_" + target, expire);
-      alert(target + " susturuldu!");
+      logAction("Admin " + currentUser + " " + target + " kullanıcısını susturdu.");
     }
 
     // Owner fonksiyonları
@@ -230,11 +260,12 @@
         else if(cat==="rock") rockIDs.push(newID);
         else otherIDs.push(newID);
         renderIDs();
+        logAction("Owner " + currentUser + " yeni ID ekledi: " + newID);
       }
     }
     function setAnnouncement() {
       let msg = document.getElementById("newAnnouncement").value.trim();
-      if(msg) document.getElementById("duyuru").innerText = "📢 " + msg;
+      if(msg) { document.getElementById("duyuru").innerText = "📢 " + msg; logAction("Owner duyuru gönderdi: " + msg); }
     }
     function addPackage() {
       let name = document.getElementById("newPackage").value.trim();
@@ -244,6 +275,7 @@
         let div = document.createElement("div");
         div.innerText = name + " - " + price + " Robux";
         list.appendChild(div);
+        logAction("Owner paket ekledi: " + name);
       }
     }
     function giveTag() {
@@ -251,8 +283,39 @@
       let tag = document.getElementById("tagName").value.trim();
       if(user && tag) {
         localStorage.setItem("tag_" + user, tag);
-        alert(user + " artık " + tag + "!");
+        logAction("Owner " + user + " adlı kullanıcıya tag verdi: " + tag);
       }
+    }
+    function ownerBan() {
+      let target = document.getElementById("ownerBanUser").value.trim();
+      let hours = parseInt(document.getElementById("ownerBanTime").value);
+      if(!target) return;
+      let expire = hours === 0 ? -1 : Date.now() + hours*60*60*1000;
+      localStorage.setItem("ban_" + target, expire);
+      logAction("Owner " + target + " kullanıcısını banladı.");
+    }
+    function ownerMute() {
+      let target = document.getElementById("ownerMuteUser").value.trim();
+      let minutes = parseInt(document.getElementById("ownerMuteTime").value);
+      if(!target) return;
+      let expire = Date.now() + minutes*60*1000;
+      localStorage.setItem("mute_" + target, expire);
+      logAction("Owner " + target + " kullanıcısını susturdu.");
+    }
+
+    // Chat mute
+    function toggleChatMute() {
+      chatMuted = !chatMuted;
+      logAction((currentRole==="owner"?"Owner":"Admin") + " sohbeti " + (chatMuted ? "kapattı" : "açtı"));
+      alert("Sohbet " + (chatMuted ? "kapandı" : "açıldı"));
+    }
+
+    // Logs
+    function logAction(msg) {
+      let box = document.getElementById(currentRole==="owner" ? "logsBoxOwner" : "logsBox");
+      let div = document.createElement("div");
+      div.innerText = new Date().toLocaleTimeString() + " - " + msg;
+      box.appendChild(div);
     }
 
     // DM sistemi
