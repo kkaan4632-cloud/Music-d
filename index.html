@@ -7,12 +7,18 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #000000, #1a1a1a, #2b2b2b);
+      background: #111;
       color: white;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: all 0.3s;
+    }
+
+    body.light {
+      background: #f5f5f5;
+      color: #000;
     }
 
     header {
@@ -26,10 +32,15 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
 
+    body.light header {
+      background: #ddd;
+      color: #000;
+    }
+
     .container {
       margin-top: 20px;
-      width: 90%;
-      max-width: 900px;
+      width: 95%;
+      max-width: 950px;
     }
 
     .section {
@@ -38,6 +49,11 @@
       border-radius: 8px;
       padding: 15px;
       box-shadow: 0 0 10px rgba(0,0,0,0.7);
+    }
+    body.light .section {
+      background: #fff;
+      color: #000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
     .section h2 {
@@ -54,6 +70,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    body.light .id-item {
+      background: #eee;
+      color: #000;
     }
 
     .id-item button {
@@ -80,6 +100,10 @@
       border-radius: 6px;
       margin-bottom: 10px;
     }
+    body.light #chat {
+      background: #eee;
+      color: #000;
+    }
 
     .chat-msg {
       padding: 6px;
@@ -87,16 +111,14 @@
       border-radius: 4px;
       background: #2d2d2d;
     }
-
-    .admin {
-      color: #ff4444;
-      font-weight: bold;
+    body.light .chat-msg {
+      background: #ddd;
     }
 
-    .guest {
-      color: #00aaff;
-      font-weight: bold;
-    }
+    .admin { color: #ff4444; font-weight: bold; }
+    .owner { color: #ffd700; font-weight: bold; }
+    .guest { color: #00aaff; font-weight: bold; }
+    .premium { color: #ff66ff; font-weight: bold; }
 
     .chat-msg button {
       background: red;
@@ -109,7 +131,7 @@
       margin-left: 6px;
     }
 
-    /* Duyuru sabit */
+    /* Duyuru */
     #duyuru {
       background: #ffcc00;
       color: black;
@@ -121,12 +143,16 @@
     }
 
     /* Admin panel */
-    #adminPanel {
+    #adminPanel, #ownerPanel {
       display: none;
       background: #111;
       padding: 15px;
       border-radius: 8px;
       margin-top: 20px;
+    }
+    body.light #adminPanel, body.light #ownerPanel {
+      background: #f0f0f0;
+      color: #000;
     }
 
     input, select {
@@ -142,32 +168,36 @@
       color: #aaa;
       text-align: right;
     }
+
+    #themeToggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: #00ff88;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <header>🎵 Roblox Müzik ID Paylaşım 🎵</header>
+  <button id="themeToggle" onclick="toggleTheme()">🌙 / ☀️</button>
 
   <div id="duyuru">📢 Yeni güncelleme yakında geliyor!</div>
 
   <div class="container">
-    <!-- Normal Müzik Bölümü -->
+    <!-- Normal Müzik -->
     <div class="section" id="normalMusic">
       <h2>🎶 Normal Müzik</h2>
     </div>
 
     <!-- Diğer kategoriler -->
-    <div class="section">
-      <h2>🔥 Phonk</h2>
-      <p style="text-align:center; color:gray;">ID eklenmedi</p>
-    </div>
-    <div class="section">
-      <h2>🎸 Rock</h2>
-      <p style="text-align:center; color:gray;">ID eklenmedi</p>
-    </div>
-    <div class="section">
-      <h2>🎧 Diğer</h2>
-      <p style="text-align:center; color:gray;">ID eklenmedi</p>
-    </div>
+    <div class="section" id="phonk"><h2>🔥 Phonk</h2></div>
+    <div class="section" id="rock"><h2>🎸 Rock</h2></div>
+    <div class="section" id="other"><h2>🎧 Diğer</h2></div>
 
     <!-- Chat -->
     <div class="section">
@@ -177,27 +207,24 @@
       <button onclick="sendMessage()">Gönder</button>
     </div>
 
+    <!-- Aktif kullanıcılar -->
     <div id="activeUsers"></div>
 
-    <!-- Kullanıcı adı seçme -->
+    <!-- Admin giriş -->
     <div class="section">
-      <h2>👤 Kullanıcı Adı</h2>
-      <input type="text" id="nickname" placeholder="Yeni kullanıcı adı gir">
-      <button onclick="changeName()">Kaydet</button>
-    </div>
-
-    <!-- Admin Giriş -->
-    <div class="section">
-      <h2>🔑 Admin Girişi</h2>
+      <h2>🔑 Giriş</h2>
       <input type="password" id="adminPass" placeholder="Şifre gir">
-      <button onclick="loginAdmin()">Giriş</button>
+      <button onclick="login()">Giriş</button>
     </div>
 
     <!-- Admin Panel -->
     <div id="adminPanel">
       <h2>⚙️ Admin Paneli</h2>
       <input type="text" id="newID" placeholder="Yeni ID ekle">
-      <button onclick="addID()">Ekle</button>
+      <button onclick="addID('normalMusic')">Normal Ekle</button>
+      <button onclick="addID('phonk')">Phonk Ekle</button>
+      <button onclick="addID('rock')">Rock Ekle</button>
+      <button onclick="addID('other')">Diğer Ekle</button>
       <br><br>
       <input type="text" id="banUser" placeholder="Banlanacak kullanıcı adı">
       <select id="banTime">
@@ -206,42 +233,60 @@
         <option value="24">24 Saat</option>
       </select>
       <button onclick="banUser()">Banla</button>
-      <br><br>
-      <input type="text" id="newDuyuru" placeholder="Yeni duyuru yaz">
-      <button onclick="changeDuyuru()">Duyuruyu Güncelle</button>
+    </div>
+
+    <!-- Owner Panel -->
+    <div id="ownerPanel">
+      <h2>👑 Owner Paneli</h2>
+      <input type="text" id="packageName" placeholder="Paket adı">
+      <input type="text" id="packagePrice" placeholder="Fiyat (Robux)">
+      <button onclick="addPackage()">Paket Ekle</button>
+      <div id="packages"></div>
+      <br>
+      <input type="text" id="tagUser" placeholder="Tag verilecek kullanıcı">
+      <input type="text" id="tagValue" placeholder="Tag (örn: Premium)">
+      <button onclick="giveTag()">Tag Ver</button>
     </div>
   </div>
 
   <script>
     let isAdmin = false;
-    let username = localStorage.getItem("nickname") || "Guest" + Math.floor(Math.random() * 1000);
+    let isOwner = false;
+    let username = "Guest" + Math.floor(Math.random() * 1000);
 
-    // Normal Müzik ID listesi
-    let musicIDs = [
-      "114377669273691",
-      "134907421285608",
-      "104168792634229",
-      "74431247827459",
-      "130525432946828",
-      "99830662289112",
-      "118245433375755",
-      "105008782996692"
-    ];
+    // Müzik ID listeleri
+    let musicLists = {
+      normalMusic: [
+        "114377669273691",
+        "134907421285608",
+        "104168792634229",
+        "74431247827459",
+        "130525432946828",
+        "99830662289112",
+        "118245433375755",
+        "105008782996692"
+      ],
+      phonk: [],
+      rock: [],
+      other: []
+    };
 
     function renderIDs() {
-      let container = document.getElementById("normalMusic");
-      container.innerHTML = "<h2>🎶 Normal Müzik</h2>";
-      musicIDs.forEach((id, index) => {
-        let div = document.createElement("div");
-        div.className = "id-item";
-        div.innerHTML = `
-          ${id}
-          <div>
-            <button onclick="copyID('${id}')">Kopyala</button>
-            ${isAdmin ? `<button onclick="deleteID(${index})">Sil</button>` : ""}
-          </div>`;
-        container.appendChild(div);
-      });
+      for (let section in musicLists) {
+        let container = document.getElementById(section);
+        container.innerHTML = `<h2>${container.querySelector("h2").innerText}</h2>`;
+        musicLists[section].forEach((id, index) => {
+          let div = document.createElement("div");
+          div.className = "id-item";
+          div.innerHTML = `
+            ${id}
+            <div>
+              <button onclick="copyID('${id}')">Kopyala</button>
+              ${(isAdmin||isOwner) ? `<button onclick="deleteID('${section}', ${index})">Sil</button>` : ""}
+            </div>`;
+          container.appendChild(div);
+        });
+      }
     }
 
     function copyID(id) {
@@ -249,30 +294,40 @@
       alert("ID kopyalandı: " + id);
     }
 
-    function deleteID(index) {
-      musicIDs.splice(index, 1);
+    function deleteID(section, index) {
+      musicLists[section].splice(index, 1);
       renderIDs();
     }
 
-    function addID() {
+    function addID(section) {
       let newID = document.getElementById("newID").value.trim();
       if (newID) {
-        musicIDs.push(newID);
+        musicLists[section].push(newID);
         renderIDs();
       }
     }
 
-    // Chat geçmişini yükle
-    function loadChat() {
-      let saved = localStorage.getItem("chatHistory");
-      if (saved) {
-        let chat = document.getElementById("chat");
-        chat.innerHTML = saved;
-        chat.scrollTop = chat.scrollHeight;
+    // Paket sistemi
+    let packages = [];
+    function addPackage() {
+      let name = document.getElementById("packageName").value.trim();
+      let price = document.getElementById("packagePrice").value.trim();
+      if (name && price) {
+        packages.push({name, price});
+        renderPackages();
       }
     }
+    function renderPackages() {
+      let div = document.getElementById("packages");
+      div.innerHTML = "<h3>Mevcut Paketler</h3>";
+      packages.forEach(p=>{
+        let el = document.createElement("div");
+        el.innerText = `${p.name} - ${p.price} Robux`;
+        div.appendChild(el);
+      });
+    }
 
-    // Chat mesaj gönderme
+    // Chat
     function sendMessage() {
       let input = document.getElementById("chatInput");
       let msg = input.value.trim();
@@ -282,28 +337,26 @@
       let chat = document.getElementById("chat");
       let div = document.createElement("div");
       div.className = "chat-msg";
-      div.innerHTML = `<span class="${isAdmin ? 'admin' : 'guest'}">${isAdmin ? 'Admin' : username}:</span> ${msg}
-        ${isAdmin ? `<button onclick="this.parentElement.remove(); saveChat()">Sil</button>` : ""}`;
+      let role = isOwner ? 'owner' : (isAdmin ? 'admin' : 'guest');
+      div.innerHTML = `<span class="${role}">${isOwner ? 'Owner' : (isAdmin ? 'Admin' : username)}:</span> ${msg}
+        ${(isAdmin||isOwner) ? `<button onclick="this.parentElement.remove()">Sil</button>` : ""}`;
       chat.appendChild(div);
       chat.scrollTop = chat.scrollHeight;
       input.value = "";
-
-      saveChat();
     }
 
-    // Chat geçmişini kaydet
-    function saveChat() {
-      let chat = document.getElementById("chat").innerHTML;
-      localStorage.setItem("chatHistory", chat);
-    }
-
-    // Admin login
-    function loginAdmin() {
+    // Giriş
+    function login() {
       let pass = document.getElementById("adminPass").value;
       if (pass === "NEONUM31") {
         isAdmin = true;
         alert("Admin girişi başarılı!");
         document.getElementById("adminPanel").style.display = "block";
+        renderIDs();
+      } else if (pass === "OWNERNEON") {
+        isOwner = true;
+        alert("Owner girişi başarılı!");
+        document.getElementById("ownerPanel").style.display = "block";
         renderIDs();
       } else {
         alert("Hatalı şifre!");
@@ -315,7 +368,6 @@
       let target = document.getElementById("banUser").value.trim();
       let hours = parseInt(document.getElementById("banTime").value);
       if (!target) return;
-
       let expire = hours === 0 ? -1 : Date.now() + hours * 60 * 60 * 1000;
       localStorage.setItem("ban_" + target, expire);
       alert(target + " banlandı!");
@@ -338,24 +390,22 @@
       return false;
     }
 
-    // Duyuru güncelle
-    function changeDuyuru() {
-      let text = document.getElementById("newDuyuru").value.trim();
-      if (text) {
-        document.getElementById("duyuru").innerText = "📢 " + text;
+    // Tag verme
+    function giveTag() {
+      let target = document.getElementById("tagUser").value.trim();
+      let tag = document.getElementById("tagValue").value.trim();
+      if (target && tag) {
+        localStorage.setItem("tag_" + target, tag);
+        alert(target + " kullanıcısına tag verildi: " + tag);
       }
     }
 
-    // Kullanıcı adı değiştirme
-    function changeName() {
-      let newName = document.getElementById("nickname").value.trim();
-      if (newName) {
-        username = newName;
-        localStorage.setItem("nickname", newName);
-        alert("Kullanıcı adın güncellendi: " + newName);
-        updateActiveUsers();
-      }
+    // Tema
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
     }
+    if (localStorage.getItem("theme") === "light") document.body.classList.add("light");
 
     // Aktif kullanıcı sayısı
     function updateActiveUsers() {
@@ -371,12 +421,10 @@
       localStorage.setItem("activeUsers", JSON.stringify(users));
       document.getElementById("activeUsers").innerText = "Aktif kullanıcı: " + users.length;
     }
-
     setInterval(updateActiveUsers, 5000);
 
     renderIDs();
     updateActiveUsers();
-    loadChat();
   </script>
 </body>
 </html>
