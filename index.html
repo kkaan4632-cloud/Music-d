@@ -6,399 +6,353 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #111;
-      color: #eee;
+      font-family: Arial, sans-serif;
+      background: #0d0d0d;
+      color: white;
       display: flex;
       min-height: 100vh;
     }
 
-    /* Sidebar */
-    .sidebar {
+    /* Yan Menü */
+    nav {
       width: 220px;
-      background: #1a1a1a;
-      padding: 20px;
+      background: #111;
+      padding: 15px;
       display: flex;
       flex-direction: column;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.6);
+      gap: 10px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.5);
     }
-
-    .sidebar h2 {
-      color: #00aaff;
+    nav h2 {
+      font-size: 20px;
+      color: #ff0044;
+      margin-bottom: 10px;
       text-align: center;
-      margin-bottom: 20px;
     }
-
-    .sidebar button {
-      background: none;
-      border: none;
-      color: #eee;
-      text-align: left;
+    nav button {
       padding: 10px;
-      margin: 5px 0;
-      cursor: pointer;
+      border: none;
       border-radius: 6px;
+      cursor: pointer;
+      background: #222;
+      color: #fff;
+      font-weight: bold;
       transition: 0.3s;
     }
-
-    .sidebar button:hover {
-      background: #00aaff;
-      color: #000;
+    nav button:hover {
+      background: #ff0044;
     }
 
-    /* Main */
-    .main {
+    /* İçerik */
+    .content {
       flex: 1;
       padding: 20px;
-      background: #181818;
       overflow-y: auto;
     }
 
-    header {
-      font-size: 26px;
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-      background: linear-gradient(90deg, #00aaff, #ff4444);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
     .section {
-      background: #222;
-      border-radius: 10px;
-      padding: 15px;
+      background: #1a1a1a;
       margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
     }
-
-    .section h3 {
+    .section h2 {
       margin-top: 0;
-      color: #ff4444;
+      color: #00aaff;
+      text-align: center;
     }
 
     .id-item {
-      background: #2c2c2c;
+      background: #2a2a2a;
       padding: 8px;
-      border-radius: 6px;
       margin: 6px 0;
+      border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .id-item button {
-      background: #00aaff;
+      background: #00ff88;
       border: none;
       padding: 5px 10px;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
+      color: #000;
+      margin-left: 5px;
     }
-
     .id-item button:hover {
-      background: #0088cc;
+      background: #00cc66;
     }
 
-    /* Chat */
+    /* Sohbet */
     #chat {
-      height: 200px;
+      background: #222;
+      height: 250px;
       overflow-y: auto;
-      background: #2c2c2c;
       padding: 10px;
       border-radius: 6px;
       margin-bottom: 10px;
     }
-
     .chat-msg {
-      margin-bottom: 8px;
       padding: 6px;
-      border-radius: 6px;
-      background: #333;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      background: #2d2d2d;
     }
+    .admin { color: #ff4444; font-weight: bold; }
+    .owner { color: gold; font-weight: bold; }
+    .guest { color: #00aaff; font-weight: bold; }
 
-    .admin {
-      color: #ff4444;
-      font-weight: bold;
-    }
-
-    .owner {
-      color: gold;
-      font-weight: bold;
-    }
-
-    .guest {
-      color: #00aaff;
-      font-weight: bold;
-    }
-
-    /* Paket Kartları */
-    .paketler {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .paket {
-      background: #2c2c2c;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-
-    .paket h4 {
-      margin: 0 0 10px 0;
-      color: #00aaff;
-    }
-
-    /* Inputs */
-    input, select {
-      padding: 8px;
-      border-radius: 6px;
+    .chat-msg button {
+      background: red;
       border: none;
-      margin: 5px 0;
-      width: 100%;
-    }
-
-    button {
+      padding: 2px 6px;
+      border-radius: 3px;
       cursor: pointer;
+      color: white;
+      font-size: 12px;
+      margin-left: 6px;
     }
 
-    /* Tema Butonu */
-    #themeToggle {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: #00aaff;
-      border: none;
-      padding: 8px 12px;
+    /* DM */
+    #dmBox {
+      background: #111;
+      border: 1px solid #333;
+      padding: 10px;
       border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
+      display: none;
+      margin-top: 10px;
     }
 
-    .light {
-      background: #f2f2f2;
+    /* Paketler */
+    .package {
+      background: #292929;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+
+    /* Tema */
+    .light-theme {
+      background: #f5f5f5;
       color: #000;
     }
-
-    .light .sidebar {
+    .light-theme nav {
       background: #ddd;
     }
-
-    .light .section {
+    .light-theme .section {
       background: #fff;
-    }
-
-    .light #chat {
-      background: #eee;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>🎵 Menü</h2>
-    <button onclick="showSection('normal')">🎶 Normal</button>
+  <!-- Yan Menü -->
+  <nav>
+    <h2>MENÜ</h2>
+    <button onclick="showSection('normalMusic')">🎶 Normal</button>
     <button onclick="showSection('phonk')">🔥 Phonk</button>
     <button onclick="showSection('rock')">🎸 Rock</button>
     <button onclick="showSection('other')">🎧 Diğer</button>
     <button onclick="showSection('chatSection')">💬 Sohbet</button>
-    <button onclick="showSection('paketler')">📦 Paketler</button>
-    <button onclick="showSection('loginAdmin')">🔑 Admin Girişi</button>
-    <button onclick="showSection('loginOwner')">👑 Owner Girişi</button>
-  </div>
+    <button onclick="showSection('packages')">📦 Paketler</button>
+    <button onclick="showSection('login')">🔑 Giriş</button>
+    <button onclick="toggleTheme()">🌙 Tema</button>
+    <h2>⚡ Aktif Kullanıcılar</h2>
+    <div id="activeUsersList"></div>
+    <div id="activeCount"></div>
+  </nav>
 
-  <div class="main">
-    <header>Roblox Müzik ID Paylaşım</header>
-
+  <!-- İçerik -->
+  <div class="content">
     <!-- Normal Müzik -->
-    <div id="normal" class="section">
-      <h3>🎶 Normal Müzik</h3>
-      <div id="normalList"></div>
+    <div class="section" id="normalMusic">
+      <h2>🎶 Normal Müzik</h2>
     </div>
 
     <!-- Phonk -->
-    <div id="phonk" class="section" style="display:none;">
-      <h3>🔥 Phonk</h3>
-      <div id="phonkList"></div>
+    <div class="section" id="phonk" style="display:none;">
+      <h2>🔥 Phonk</h2>
     </div>
 
     <!-- Rock -->
-    <div id="rock" class="section" style="display:none;">
-      <h3>🎸 Rock</h3>
-      <div id="rockList"></div>
+    <div class="section" id="rock" style="display:none;">
+      <h2>🎸 Rock</h2>
     </div>
 
     <!-- Diğer -->
-    <div id="other" class="section" style="display:none;">
-      <h3>🎧 Diğer</h3>
-      <div id="otherList"></div>
+    <div class="section" id="other" style="display:none;">
+      <h2>🎧 Diğer</h2>
     </div>
 
-    <!-- Chat -->
-    <div id="chatSection" class="section" style="display:none;">
-      <h3>💬 Sohbet</h3>
+    <!-- Sohbet -->
+    <div class="section" id="chatSection" style="display:none;">
+      <h2>💬 Sohbet</h2>
       <div id="chat"></div>
       <input type="text" id="chatInput" placeholder="Mesaj yaz...">
       <button onclick="sendMessage()">Gönder</button>
+      <div id="dmBox"></div>
     </div>
 
     <!-- Paketler -->
-    <div id="paketler" class="section" style="display:none;">
-      <h3>📦 Paketler</h3>
-      <div class="paketler">
-        <div class="paket">
-          <h4>Starter Paket</h4>
-          <p>Açıklama ekle</p>
-        </div>
-        <div class="paket">
-          <h4>Pro Paket</h4>
-          <p>Açıklama ekle</p>
-        </div>
-        <div class="paket">
-          <h4>VIP Paket</h4>
-          <p>Açıklama ekle</p>
-        </div>
-      </div>
+    <div class="section" id="packages" style="display:none;">
+      <h2>📦 Paketler</h2>
+      <div id="packageList"><p>Şu an paket yok.</p></div>
     </div>
 
-    <!-- Admin Login -->
-    <div id="loginAdmin" class="section" style="display:none;">
-      <h3>🔑 Admin Girişi</h3>
-      <input type="password" id="adminPass" placeholder="Şifre gir">
-      <button onclick="login('admin')">Giriş</button>
-    </div>
-
-    <!-- Owner Login -->
-    <div id="loginOwner" class="section" style="display:none;">
-      <h3>👑 Owner Girişi</h3>
-      <input type="password" id="ownerPass" placeholder="Şifre gir">
-      <button onclick="login('owner')">Giriş</button>
+    <!-- Giriş -->
+    <div class="section" id="login" style="display:none;">
+      <h2>🔑 Giriş</h2>
+      <input type="password" id="adminPass" placeholder="Admin şifresi">
+      <button onclick="loginAdmin()">Admin Giriş</button><br><br>
+      <input type="password" id="ownerPass" placeholder="Owner şifresi">
+      <button onclick="loginOwner()">Owner Giriş</button>
     </div>
 
     <!-- Admin Panel -->
-    <div id="adminPanel" class="section" style="display:none;">
-      <h3>⚙️ Admin Paneli</h3>
-      <input type="text" id="newID" placeholder="Yeni ID ekle">
-      <select id="category">
-        <option value="normal">Normal</option>
-        <option value="phonk">Phonk</option>
-        <option value="rock">Rock</option>
-        <option value="other">Diğer</option>
+    <div class="section" id="adminPanel" style="display:none;">
+      <h2>⚙️ Admin Paneli</h2>
+      <input type="text" id="banUser" placeholder="Banlanacak kullanıcı">
+      <select id="banTime">
+        <option value="0">Kalıcı</option>
+        <option value="1">1 Saat</option>
+        <option value="24">24 Saat</option>
       </select>
-      <button onclick="addID()">Ekle</button>
+      <button onclick="banUser()">Banla</button>
     </div>
 
     <!-- Owner Panel -->
-    <div id="ownerPanel" class="section" style="display:none;">
-      <h3>👑 Owner Paneli</h3>
-      <p>Tüm admin özellikleri + ekstra kontroller burada olacak.</p>
+    <div class="section" id="ownerPanel" style="display:none;">
+      <h2>👑 Owner Paneli</h2>
+      <input type="text" id="newNormal" placeholder="Normal ID ekle">
+      <button onclick="addID('normal')">Ekle</button><br>
+      <input type="text" id="newPhonk" placeholder="Phonk ID ekle">
+      <button onclick="addID('phonk')">Ekle</button><br>
+      <input type="text" id="newRock" placeholder="Rock ID ekle">
+      <button onclick="addID('rock')">Ekle</button><br>
+      <input type="text" id="newOther" placeholder="Diğer ID ekle">
+      <button onclick="addID('other')">Ekle</button><br>
+      <h3>Paket Ekle</h3>
+      <input type="text" id="newPackage" placeholder="Paket adı">
+      <button onclick="addPackage()">Paket Ekle</button>
     </div>
   </div>
-
-  <button id="themeToggle" onclick="toggleTheme()">🌙 Tema</button>
 
   <script>
     let isAdmin = false;
     let isOwner = false;
+    let username = "Guest" + Math.floor(Math.random() * 1000);
 
-    let music = {
-      normal: ["114377669273691","134907421285608","104168792634229"],
+    // ID listeleri
+    let ids = {
+      normal: ["114377669273691","134907421285608","104168792634229","74431247827459"],
       phonk: [],
       rock: [],
       other: []
     };
 
+    let packages = [];
+
     function renderIDs() {
-      ["normal","phonk","rock","other"].forEach(cat => {
-        let list = document.getElementById(cat+"List");
-        list.innerHTML = "";
-        music[cat].forEach((id, index) => {
+      for (let cat in ids) {
+        let container = document.getElementById(cat);
+        if (!container) continue;
+        container.innerHTML = `<h2>${container.querySelector("h2").innerText}</h2>`;
+        ids[cat].forEach((id, index) => {
           let div = document.createElement("div");
           div.className = "id-item";
-          div.innerHTML = `
-            ${id}
-            <div>
-              <button onclick="copyID('${id}')">Kopyala</button>
-              ${(isAdmin||isOwner)? `<button onclick="deleteID('${cat}',${index})">Sil</button>` : ""}
-            </div>
-          `;
-          list.appendChild(div);
+          div.innerHTML = `${id} <div>
+            <button onclick="copyID('${id}')">Kopyala</button>
+            ${(isAdmin||isOwner) ? `<button onclick="deleteID('${cat}',${index})">Sil</button>`:""}
+          </div>`;
+          container.appendChild(div);
         });
-      });
-    }
-
-    function addID() {
-      let newID = document.getElementById("newID").value.trim();
-      let cat = document.getElementById("category").value;
-      if(newID){
-        music[cat].push(newID);
-        renderIDs();
       }
     }
 
-    function deleteID(cat, index) {
-      music[cat].splice(index,1);
-      renderIDs();
+    function copyID(id){navigator.clipboard.writeText(id);alert("ID kopyalandı: "+id);}
+    function deleteID(cat,index){ids[cat].splice(index,1);renderIDs();}
+    function addID(cat){
+      let input=document.getElementById("new"+cat.charAt(0).toUpperCase()+cat.slice(1));
+      let val=input.value.trim();
+      if(val){ids[cat].push(val);renderIDs();input.value="";}
     }
 
-    function copyID(id){
-      navigator.clipboard.writeText(id);
-      alert("ID kopyalandı: "+id);
+    // Paketler
+    function renderPackages(){
+      let box=document.getElementById("packageList");
+      box.innerHTML="";
+      if(packages.length===0){box.innerHTML="<p>Şu an paket yok.</p>";}
+      packages.forEach((p,i)=>{
+        let div=document.createElement("div");
+        div.className="package";
+        div.innerHTML=`${p} ${(isOwner?`<button onclick="deletePackage(${i})">Sil</button>`:"")}`;
+        box.appendChild(div);
+      });
     }
+    function addPackage(){
+      let val=document.getElementById("newPackage").value.trim();
+      if(val){packages.push(val);renderPackages();}
+    }
+    function deletePackage(i){packages.splice(i,1);renderPackages();}
 
     // Chat
     function sendMessage(){
       let input=document.getElementById("chatInput");
-      let msg=input.value.trim();
-      if(!msg) return;
+      let msg=input.value.trim();if(!msg)return;
       let chat=document.getElementById("chat");
       let div=document.createElement("div");
       div.className="chat-msg";
-      let role=isOwner?"owner":(isAdmin?"admin":"guest");
-      let name=role==="owner"?"Owner":(role==="admin"?"Admin":"Guest");
-      div.innerHTML=`<span class="${role}">${name}:</span> ${msg}`;
-      chat.appendChild(div);
-      chat.scrollTop=chat.scrollHeight;
-      input.value="";
+      let role=isOwner?"owner":isAdmin?"admin":"guest";
+      div.innerHTML=`<span class="${role}">${isOwner?"Owner":isAdmin?"Admin":username}:</span> ${msg} ${(isAdmin||isOwner)?`<button onclick="this.parentElement.remove()">Sil</button>`:""}`;
+      chat.appendChild(div);chat.scrollTop=chat.scrollHeight;input.value="";
     }
 
     // Login
-    function login(role){
-      if(role==="admin"){
-        let pass=document.getElementById("adminPass").value;
-        if(pass==="NEONUM31"){
-          isAdmin=true;
-          alert("Admin girişi başarılı!");
-          document.getElementById("adminPanel").style.display="block";
-          renderIDs();
-        } else alert("Hatalı şifre!");
-      }
-      if(role==="owner"){
-        let pass=document.getElementById("ownerPass").value;
-        if(pass==="OWNERNEON"){
-          isOwner=true;
-          alert("Owner girişi başarılı!");
-          document.getElementById("ownerPanel").style.display="block";
-          document.getElementById("adminPanel").style.display="block";
-          renderIDs();
-        } else alert("Hatalı şifre!");
-      }
+    function loginAdmin(){
+      let pass=document.getElementById("adminPass").value;
+      if(pass==="NEONUM31"){isAdmin=true;alert("Admin girişi başarılı!");document.getElementById("adminPanel").style.display="block";renderIDs();}
+    }
+    function loginOwner(){
+      let pass=document.getElementById("ownerPass").value;
+      if(pass==="OWNERNEON"){isOwner=true;alert("Owner girişi başarılı!");document.getElementById("ownerPanel").style.display="block";renderIDs();renderPackages();}
     }
 
-    // Sidebar göster/gizle
+    // Ban sistemi
+    function banUser(){
+      let target=document.getElementById("banUser").value.trim();
+      let hours=parseInt(document.getElementById("banTime").value);
+      if(!target)return;
+      let expire=hours===0?-1:Date.now()+hours*60*60*1000;
+      localStorage.setItem("ban_"+target,expire);
+      alert(target+" banlandı!");
+    }
+
+    // Aktif kullanıcılar
+    function updateActiveUsers(){
+      let users=localStorage.getItem("activeUsers");
+      users=users?JSON.parse(users):[];
+      users=users.filter(u=>Date.now()-u.time<30000);
+      let existing=users.find(u=>u.name===username);
+      if(existing){existing.time=Date.now();}else{users.push({name:username,time:Date.now()});}
+      localStorage.setItem("activeUsers",JSON.stringify(users));
+      document.getElementById("activeCount").innerText="Aktif: "+users.length;
+      let list=document.getElementById("activeUsersList");
+      list.innerHTML=users.map(u=>"<div>"+u.name+"</div>").join("");
+    }
+
+    // Tema
+    function toggleTheme(){document.body.classList.toggle("light-theme");}
+
+    // Sayfa geçişleri
     function showSection(id){
       document.querySelectorAll(".section").forEach(sec=>sec.style.display="none");
       document.getElementById(id).style.display="block";
     }
 
-    // Tema
-    function toggleTheme(){
-      document.body.classList.toggle("light");
-    }
-
-    renderIDs();
+    renderIDs();renderPackages();setInterval(updateActiveUsers,5000);
   </script>
 </body>
 </html>
