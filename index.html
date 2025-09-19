@@ -1,513 +1,290 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Roblox Müzik ID Paylaşım</title>
+  <meta charset="UTF-8">
+  <title>Music Panel</title>
   <style>
-    :root{
-      --card-bg:#1c1c1c; --muted:#9aa; --accent:#00ff88; --danger:#ff5555;
-      --light-card:#fff; --light-text:#000;
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 0;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:#111;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background .2s,color .2s;}
-    body.light{background:#f6f6f6;color:var(--light-text);}
-    header{width:100%;padding:18px 12px;background:rgba(0,0,0,0.6);box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;justify-content:space-between;align-items:center;gap:12px}
-    header h1{margin:0;font-size:18px}
-    #themeBtn{background:var(--accent);border:none;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:bold;color:#000}
-    .container{width:95%;max-width:1100px;margin-top:18px;display:grid;grid-template-columns:1fr 360px;gap:18px;padding-bottom:40px;}
-    .main{display:flex;flex-direction:column;gap:14px}
-    .panel{background:var(--card-bg);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
-    body.light .panel{background:var(--light-card);color:var(--light-text);box-shadow:0 4px 10px rgba(0,0,0,.06)}
-    .section-title{margin:0 0 8px 0;font-size:16px;color:var(--accent);font-weight:700}
-    .id-item{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.02);padding:8px;border-radius:8px;margin:8px 0}
-    body.light .id-item{background:#f1f1f1}
-    .id-item button{margin-left:6px;padding:6px 8px;border-radius:6px;border:none;cursor:pointer;font-weight:600}
-    .btn-copy{background:var(--accent);color:#000}
-    .btn-del{background:var(--danger);color:#fff}
-    .small{font-size:13px;color:var(--muted)}
-    /* chat */
-    #chat{height:220px;overflow:auto;padding:8px;border-radius:8px;background:#151515}
-    body.light #chat{background:#fafafa}
-    .chat-line{padding:8px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,.02)}
-    body.light .chat-line{background:#fff}
-    .meta{font-weight:700;margin-right:8px}
-    .meta.owner{color:gold}
-    .meta.admin{color:#ff4444}
-    .meta.premium{color:#ff66ff}
-    .meta.guest{color:#00aaff}
-    .chat-line button{float:right;background:var(--danger);border:none;color:#fff;padding:4px 6px;border-radius:6px;cursor:pointer}
-    input,select,textarea{padding:8px;border-radius:8px;border:none;outline:none}
-    .right-col{display:flex;flex-direction:column;gap:14px}
-    .user-list button{display:block;width:100%;text-align:left;margin:6px 0;padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,.02);cursor:pointer}
-    body.light .user-list button{background:#f4f4f4}
-    .flex{display:flex;gap:8px;align-items:center}
-    .muted{color:var(--muted);font-size:13px}
-    .tag-badge{padding:4px 8px;border-radius:8px;background:#222;color:#fff;font-weight:700;margin-left:8px}
-    body.light .tag-badge{background:#ddd;color:#000}
-    .sys-msg{background:#0f0f0f;color:lime;padding:8px;border-radius:8px;margin:8px 0}
-    body.light .sys-msg{background:#eafbe9;color:green}
-    /* mobile */
-    @media (max-width:900px){ .container{grid-template-columns:1fr; padding-bottom:80px} .right-col{order:2} .main{order:1} }
+    .light {
+      background: #fff;
+      color: #111;
+    }
+    header {
+      padding: 10px;
+      background: #222;
+      text-align: center;
+    }
+    header button { margin: 5px; }
+    .container {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      height: calc(100vh - 50px);
+    }
+    .sidebar {
+      background: #333;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .content {
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .id-item { 
+      background: #444;
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    .chat-box {
+      border: 1px solid #666;
+      height: 200px;
+      overflow-y: auto;
+      padding: 5px;
+      margin-bottom: 10px;
+      background: #00000033;
+    }
+    .chat-msg { margin: 3px 0; }
+    .admin-btn { color: red; cursor: pointer; margin-left: 5px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <header>
-    <h1>🎵 Roblox Müzik ID Paylaşım</h1>
-    <div style="display:flex;gap:10px;align-items:center">
-      <div id="onlineCount" class="small">Aktif kullanıcı: 0</div>
-      <button id="themeBtn">Tema</button>
-    </div>
+    <h1>🎶 Music Panel</h1>
+    <button onclick="toggleTheme()">🌗 Tema Değiştir</button>
   </header>
-
   <div class="container">
-    <div class="main">
-      <!-- duyuru -->
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="section-title">📢 Duyuru</div>
-          <div><span class="small muted">Owner güncelleyebilir</span></div>
-        </div>
-        <div id="announcement" class="small" style="margin-top:8px;padding:10px;background:rgba(255,255,255,.02);border-radius:8px">📢 Yeni güncelleme yakında geliyor!</div>
-      </div>
+    <div class="sidebar">
+      <h3>Kategoriler</h3>
+      <div id="normalMusic"></div>
+      <div id="phonkMusic"></div>
+      <div id="rockMusic"></div>
+      <div id="otherMusic"></div>
 
-      <!-- müzik kategorileri -->
-      <div class="panel">
-        <div class="section-title">🎶 Kategoriler</div>
-        <div id="normalMusic" style="margin-top:8px"></div>
-        <div id="phonkMusic" style="margin-top:12px"></div>
-        <div id="rockMusic" style="margin-top:12px"></div>
-        <div id="otherMusic" style="margin-top:12px"></div>
-      </div>
+      <h3>⚡ Aktif Kullanıcılar</h3>
+      <div id="userList"></div>
 
-      <!-- chat -->
-      <div class="panel">
-        <div class="section-title">💬 Sohbet</div>
-        <div id="chat"></div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="chatInput" placeholder="Mesaj yaz..." style="flex:1" />
-          <button id="sendBtn" style="background:var(--accent);color:#000;border-radius:8px;padding:8px 12px;font-weight:700">Gönder</button>
-        </div>
-      </div>
+      <h3>🔑 Admin Girişi</h3>
+      <input type="password" id="adminPass" placeholder="Şifre">
+      <button onclick="loginAdmin()">Giriş</button>
+
+      <h3>👑 Owner Girişi</h3>
+      <input type="password" id="ownerPass" placeholder="Owner Şifre">
+      <button onclick="loginOwner()">Giriş</button>
     </div>
+    <div class="content">
+      <h2>💬 Sohbet</h2>
+      <div class="chat-box" id="chat"></div>
+      <input type="text" id="chatInput" placeholder="Mesaj yaz...">
+      <button onclick="sendMessage()">Gönder</button>
 
-    <div class="right-col">
-      <!-- giriş / nickname -->
-      <div class="panel">
-        <div class="section-title">🔑 Giriş / Kullanıcı</div>
-        <div class="flex" style="margin-bottom:8px">
-          <input id="nickname" placeholder="Kullanıcı adı (opsiyonel)" style="flex:1" />
-          <button id="saveNick" style="background:var(--accent);color:#000;border-radius:8px;padding:8px 10px;font-weight:700">Kaydet</button>
-        </div>
-
-        <div style="margin-top:6px" class="flex">
-          <input id="adminPass" placeholder="Admin şifresi (NEONUM31)" style="flex:1" />
-          <button id="adminLogin" style="background:#ff4444;color:#fff;border-radius:8px;padding:8px 10px;font-weight:700">Admin</button>
-        </div>
-        <div style="margin-top:6px" class="flex">
-          <input id="ownerPass" placeholder="Owner şifresi (OWNERNEON)" style="flex:1" />
-          <button id="ownerLogin" style="background:gold;color:#000;border-radius:8px;padding:8px 10px;font-weight:700">Owner</button>
-        </div>
+      <div id="dmPanel" class="hidden">
+        <h3>📩 DM Kutusu (<span id="dmTarget"></span>)</h3>
+        <div class="chat-box" id="dmBox"></div>
+        <input type="text" id="dmInput" placeholder="Mesaj yaz...">
+        <button onclick="sendDM()">Gönder</button>
       </div>
 
-      <!-- admin panel -->
-      <div id="adminPanel" class="panel" style="display:none">
-        <div class="section-title">⚙️ Admin Panel</div>
-        <div class="small muted">Kategori seç & ID ekle (Admin: Normal; Owner tümü)</div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <select id="adminCategory" style="width:120px">
-            <option value="normal">Normal</option>
-            <option value="phonk">Phonk</option>
-            <option value="rock">Rock</option>
-            <option value="other">Diğer</option>
-          </select>
-          <input id="adminNewID" placeholder="ID gir" style="flex:1" />
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="adminAddBtn" style="background:var(--accent);color:#000;font-weight:700;padding:8px 10px;border-radius:8px">Ekle</button>
-          <button id="adminClearBtn" style="background:#ff5555;color:#fff;padding:8px 10px;border-radius:8px">Sohbeti Temizle</button>
-        </div>
-
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,.06);margin:12px 0" />
-        <div class="small muted">Ban / Uzaklaştır</div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="banTarget" placeholder="Kullanıcı adı" style="flex:1" />
-          <select id="banDuration">
-            <option value="0">Kalıcı</option>
-            <option value="1">1 Saat</option>
-            <option value="24">24 Saat</option>
-          </select>
-        </div>
-        <div style="margin-top:8px">
-          <button id="adminBanBtn" style="background:#ff5555;color:#fff;padding:8px 10px;border-radius:8px">Banla</button>
-        </div>
+      <div id="adminPanel" class="hidden">
+        <h2>🔧 Admin Paneli</h2>
+        <button onclick="announce()">📢 Duyuru Yap</button>
+        <p>Kullanıcıyı banla (dakika):</p>
+        <input type="text" id="banUser" placeholder="Kullanıcı adı">
+        <input type="number" id="banTime" value="10">
+        <button onclick="banUser()">Banla</button>
       </div>
 
-      <!-- owner panel -->
-      <div id="ownerPanel" class="panel" style="display:none">
-        <div class="section-title">👑 Owner Panel</div>
+      <div id="ownerPanel" class="hidden">
+        <h2>👑 OWNER Paneli</h2>
+        <p>Etiket ver:</p>
+        <input type="text" id="tagUser" placeholder="Kullanıcı adı">
+        <input type="text" id="tagText" placeholder="Etiket">
+        <button onclick="giveTag()">Ver</button>
 
-        <div class="small muted">Duyuru / Paket / Tag Yönetimi</div>
-        <input id="ownerAnnouncement" placeholder="Duyuru metni" style="width:100%;margin-top:8px" />
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="ownerAnnBtn" style="background:gold;color:#000;padding:8px 10px;border-radius:8px">Duyuru Güncelle</button>
-        </div>
-
-        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,.06)" />
-        <input id="pkgName" placeholder="Paket adı (örn: Phonk Pack)" style="width:100%;margin-top:6px" />
-        <input id="pkgPrice" placeholder="Fiyat (Robux)" style="width:100%;margin-top:6px" />
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="ownerPkgBtn" style="background:var(--accent);color:#000;padding:8px 10px;border-radius:8px">Paket Ekle</button>
-        </div>
-
-        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,.06)" />
-        <div style="display:flex;gap:8px">
-          <input id="tagUser" placeholder="Kullanıcı adı" style="flex:1" />
-          <input id="tagValue" placeholder="Tag (örn: ⭐VIP)" style="flex:1" />
-        </div>
-        <div style="margin-top:8px">
-          <button id="ownerTagBtn" style="background:gold;color:#000;padding:8px 10px;border-radius:8px">Tag Ver</button>
-        </div>
-      </div>
-
-      <!-- aktif & userlist -->
-      <div class="panel">
-        <div class="section-title">👥 Aktif Kullanıcılar</div>
-        <div id="userList" class="user-list"></div>
-      </div>
-
-      <!-- paketlar -->
-      <div class="panel">
-        <div class="section-title">🎁 Paketler</div>
-        <div id="packageList" class="small muted">Henüz paket yok</div>
+        <p>Paket fiyat ayarla (Robux):</p>
+        <input type="text" id="pkgName" placeholder="Paket adı">
+        <input type="number" id="pkgPrice" placeholder="Fiyat">
+        <button onclick="setPackage()">Kaydet</button>
+        <div id="pkgList"></div>
       </div>
     </div>
   </div>
 
 <script>
-/* -------------------------
-   Helpers for localStorage (safe)
-   ------------------------- */
-function lsGet(key, fallback){
-  try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; }
-}
-function lsSet(key, obj){
-  try{ localStorage.setItem(key, JSON.stringify(obj)); } catch(e){}
-}
+let isAdmin = false;
+let isOwner = false;
+let username = "Guest" + Math.floor(Math.random()*1000);
+let users = [];
+let messages = [];
+let dmMessages = {};
+let packages = {};
+let bans = {};
 
-/* -------------------------
-   Initial state
-   ------------------------- */
-let username = lsGet('nickname', null) || ('Guest' + Math.floor(Math.random()*900+100));
-lsSet('nickname', username);
-document.getElementById('nickname').value = username;
+// ID listeleri
+let normalIDs = [];
+let phonkIDs = [];
+let rockIDs = [];
+let otherIDs = [];
 
-let isAdmin = false, isOwner = false;
-let currentDM = null;
-
-/* persisted data */
-let IDs = lsGet('musicIDs', {
-  normal: ["114377669273691","134907421285608","104168792634229","74431247827459","130525432946828","99830662289112","118245433375755","105008782996692"],
-  phonk: [],
-  rock: [],
-  other: []
-});
-let chatHistory = lsGet('chatHistory', []);
-let dmStore = lsGet('dmStore', {});   // { pairKey: [ {from,text,at} ] } pairKey could be "A|B"
-let tags = lsGet('tags', {});        // { username: "⭐VIP" }
-let bans = lsGet('bans', {});        // { username: expireMillis | -1 }
-let packages = lsGet('packages', []); // [ {name,price,addedAt} ]
-let announcement = lsGet('announcement', "📢 Yeni güncelleme yakında geliyor!");
-
-/* set announcement */
-document.getElementById('announcement').innerText = announcement;
-
-/* active users touch */
-function touchActive(){
-  let arr = lsGet('activeUsers', []);
-  arr = arr.filter(u => Date.now() - u.t < 35_000);
-  const found = arr.find(x=>x.name === username);
-  if(found) found.t = Date.now(); else arr.push({name: username, t: Date.now()});
-  lsSet('activeUsers', arr);
-  document.getElementById('onlineCount').innerText = "Aktif kullanıcı: " + arr.length;
+function renderCategory(divId, title, arr){
+  let div = document.getElementById(divId);
+  div.innerHTML = `<h4>${title}</h4>`;
+  arr.forEach((id,i)=>{
+    div.innerHTML += `<div class="id-item">${id}
+      ${isAdmin||isOwner?`<span class="admin-btn" onclick="deleteID('${divId}',${i})">Sil</span>`:""}
+    </div>`;
+  });
+  if(isAdmin||isOwner){
+    div.innerHTML += `<input id="new${divId}" placeholder="ID gir"><button onclick="addID('${divId}')">Ekle</button>`;
+  }
 }
 
-/* initial renders */
-renderAll();
-touchActive();
-setInterval(()=>{ touchActive(); renderUserList(); }, 5000);
-
-/* theme */
-let theme = lsGet('theme','dark');
-if(theme === 'light') document.body.classList.add('light');
-document.getElementById('themeBtn').addEventListener('click', ()=>{
-  document.body.classList.toggle('light');
-  const t = document.body.classList.contains('light') ? 'light' : 'dark';
-  lsSet('theme', t);
-});
-
-/* -------------------------
-   Renderers
-   ------------------------- */
 function renderAll(){
-  renderIDs();
-  renderChat();
-  renderUserList();
-  renderPackages();
-  document.getElementById('announcement').innerText = announcement;
+  renderCategory("normalMusic","🎵 Normal",normalIDs);
+  renderCategory("phonkMusic","🔥 Phonk",phonkIDs);
+  renderCategory("rockMusic","🎸 Rock",rockIDs);
+  renderCategory("otherMusic","🎧 Diğer",otherIDs);
 }
 
-/* IDs */
-function renderIDs(){
-  renderCategory('normalMusic','🎶 Normal Müzik', IDs.normal, 'normal');
-  renderCategory('phonkMusic','🔥 Phonk', IDs.phonk, 'phonk');
-  renderCategory('rockMusic','🎸 Rock', IDs.rock, 'rock');
-  renderCategory('otherMusic','🎧 Diğer', IDs.other, 'other');
-  lsSet('musicIDs', IDs);
-}
-function renderCategory(containerId, title, array, key){
-  const el = document.getElementById(containerId);
-  el.innerHTML = `<h3 class="section-title">${title}</h3>`;
-  if(array.length === 0){
-    el.innerHTML += `<div class="small muted">ID eklenmedi</div>`;
-  } else {
-    array.forEach((id, idx)=>{
-      const row = document.createElement('div'); row.className='id-item';
-      const left = document.createElement('div'); left.innerText = id;
-      const right = document.createElement('div');
-      const btnCopy = document.createElement('button'); btnCopy.innerText='Kopyala'; btnCopy.className='btn-copy';
-      btnCopy.onclick = ()=>{ navigator.clipboard.writeText(id); alert('ID kopyalandı: '+id); };
-      right.appendChild(btnCopy);
-      if(isAdmin || isOwner){
-        const btnDel = document.createElement('button'); btnDel.innerText='Sil'; btnDel.className='btn-del';
-        btnDel.onclick = ()=>{ if(confirm('Silinsin mi?')){ IDs[key].splice(idx,1); lsSet('musicIDs', IDs); renderIDs(); } };
-        right.appendChild(btnDel);
-      }
-      row.appendChild(left); row.appendChild(right); el.appendChild(row);
-    });
-  }
-  if(isAdmin || isOwner){
-    const addRow = document.createElement('div'); addRow.style.marginTop='8px';
-    addRow.innerHTML = `<div class="flex"><input id="input_${key}" placeholder="Yeni ID ekle" style="flex:1"/><button onclick="addIDInline('${key}')" style="background:var(--accent);color:#000;padding:6px 8px;border-radius:6px;margin-left:6px">Ekle</button></div>`;
-    el.appendChild(addRow);
-  }
-}
-function addIDInline(key){
-  const v = document.getElementById('input_'+key).value.trim();
-  if(!v) return alert('ID gir');
-  IDs[key].push(v); lsSet('musicIDs', IDs); document.getElementById('input_'+key).value=''; renderIDs();
+function addID(type){
+  let input = document.getElementById("new"+type);
+  let val = input.value.trim();
+  if(!val) return;
+  if(type=="normalMusic") normalIDs.push(val);
+  if(type=="phonkMusic") phonkIDs.push(val);
+  if(type=="rockMusic") rockIDs.push(val);
+  if(type=="otherMusic") otherIDs.push(val);
+  input.value="";
+  renderAll();
 }
 
-/* Chat */
-function renderChat(){
-  const chat = document.getElementById('chat'); chat.innerHTML='';
-  chatHistory.forEach((m, idx)=>{
-    const line = document.createElement('div'); line.className='chat-line';
-    const meta = document.createElement('span'); meta.className='meta ' + (m.role || 'guest');
-    meta.innerText = (m.role === 'owner' ? 'OWNER' : (m.role === 'admin' ? 'Admin' : m.from));
-    line.appendChild(meta);
-    const txt = document.createElement('span'); txt.style.marginLeft='8px'; txt.innerText = m.text;
-    line.appendChild(txt);
-    if(m.tag){ const t = document.createElement('span'); t.className='tag-badge'; t.innerText=m.tag; line.appendChild(t); }
-    if(isAdmin || isOwner){
-      const b = document.createElement('button'); b.innerText='Sil';
-      b.onclick = ()=>{ if(confirm('Mesaj silinsin mi?')){ chatHistory.splice(idx,1); lsSet('chatHistory',chatHistory); renderChat(); } };
-      line.appendChild(b);
-    }
-    chat.appendChild(line);
-  });
-  chat.scrollTop = chat.scrollHeight;
-}
-function sendChat(){
-  const v = document.getElementById('chatInput').value.trim(); if(!v) return;
-  if(checkSelfBan()) return;
-  const role = isOwner ? 'owner' : (isAdmin ? 'admin' : 'guest');
-  const tag = tags[username] || null;
-  const msg = { from: username, text: v, role: role, tag: tag, time: Date.now() };
-  chatHistory.push(msg); lsSet('chatHistory', chatHistory);
-  document.getElementById('chatInput').value=''; renderChat();
+function deleteID(type,i){
+  if(type=="normalMusic") normalIDs.splice(i,1);
+  if(type=="phonkMusic") phonkIDs.splice(i,1);
+  if(type=="rockMusic") rockIDs.splice(i,1);
+  if(type=="otherMusic") otherIDs.splice(i,1);
+  renderAll();
 }
 
-/* DM */
-function renderUserList(){
-  const listDiv = document.getElementById('userList'); listDiv.innerHTML='';
-  let users = lsGet('activeUsers', []);
-  users = users.filter(u => Date.now() - u.t < 35_000);
+function updateUserList(){
+  let ul = document.getElementById("userList");
+  ul.innerHTML = "";
   users.forEach(u=>{
-    const btn = document.createElement('button'); btn.innerText = u.name + (tags[u.name] ? ' ' + tags[u.name] : '');
-    btn.onclick = ()=> openDM(u.name);
-    listDiv.appendChild(btn);
+    ul.innerHTML += `<div onclick="openDM('${u}')">${u} ${bans[u]?"(Banlı)":""}</div>`;
   });
-  document.getElementById('onlineCount').innerText = 'Aktif kullanıcı: ' + users.length;
 }
-function openDM(target){
-  if(target === username){ alert('Kendine DM atamazsın'); return; }
-  currentDM = target;
-  // create floating DM window if not exists
-  let dm = document.getElementById('dmPanel');
-  if(dm) dm.remove();
-  dm = document.createElement('div'); dm.id = 'dmPanel'; dm.className='panel';
-  dm.style.position='fixed'; dm.style.right='14px'; dm.style.bottom='14px'; dm.style.width='320px'; dm.style.zIndex=9999;
-  dm.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><strong>DM: ${target}</strong><div><button id="dmCloseBtn" style="background:#ff5555;color:#fff;padding:6px;border-radius:6px">Kapat</button></div></div>
-    <div id="dmChatArea" style="height:160px;overflow:auto;margin-top:8px;background:#111;padding:8px;border-radius:8px"></div>
-    <div style="display:flex;margin-top:8px"><input id="dmInputBox" placeholder="Mesaj..." style="flex:1"/><button id="dmSendBtn" style="background:var(--accent);color:#000;margin-left:8px;padding:6px 8px;border-radius:6px">Gönder</button></div>`;
-  document.body.appendChild(dm);
-  document.getElementById('dmCloseBtn').onclick = ()=>{ closeDM(); };
-  document.getElementById('dmSendBtn').onclick = ()=>{ sendDM(); };
-  renderDMArea();
-}
-function closeDM(){ currentDM = null; const el = document.getElementById('dmPanel'); if(el) el.remove(); }
-function renderDMArea(){
-  const area = document.getElementById('dmChatArea'); if(!area) return;
-  area.innerHTML = '';
-  const key = dmKey(username, currentDM);
-  const msgs = dmStore[key] || [];
-  msgs.forEach(m=>{
-    const d = document.createElement('div'); d.style.marginBottom='6px'; d.innerHTML = `<b>${m.from}:</b> ${m.text}`;
-    area.appendChild(d);
-  });
-  area.scrollTop = area.scrollHeight;
-}
-function sendDM(){
-  const inp = document.getElementById('dmInputBox'); if(!inp) return;
-  const text = inp.value.trim(); if(!text) return;
-  if(!currentDM) return;
-  const key = dmKey(username, currentDM);
-  if(!dmStore[key]) dmStore[key] = [];
-  dmStore[key].push({ from: username, text: text, at: Date.now() });
-  lsSet('dmStore', dmStore);
-  inp.value=''; renderDMArea();
-  // notify in chat to owner/admin that DM happened (not the content)
-  sendSystem(`[DM] ${username} → ${currentDM}`);
-}
-function dmKey(a,b){ return [a,b].sort().join('|'); }
 
-/* Admin / Owner login */
+function sendMessage(){
+  let val = document.getElementById("chatInput").value.trim();
+  if(!val) return;
+  if(bans[username] && bans[username]>Date.now()){
+    alert("Banlısın!");
+    return;
+  }
+  messages.push({u:username,m:val});
+  document.getElementById("chatInput").value="";
+  renderChat();
+}
+
+function renderChat(){
+  let c = document.getElementById("chat");
+  c.innerHTML="";
+  messages.forEach(msg=>{
+    c.innerHTML+=`<div class="chat-msg"><b>${msg.u}:</b> ${msg.m}</div>`;
+  });
+  c.scrollTop=c.scrollHeight;
+}
+
+function openDM(target){
+  document.getElementById("dmPanel").classList.remove("hidden");
+  document.getElementById("dmTarget").innerText=target;
+  renderDM(target);
+}
+
+function sendDM(){
+  let target=document.getElementById("dmTarget").innerText;
+  let val=document.getElementById("dmInput").value.trim();
+  if(!val) return;
+  if(!dmMessages[target]) dmMessages[target]=[];
+  dmMessages[target].push({from:username,msg:val});
+  document.getElementById("dmInput").value="";
+  renderDM(target);
+}
+
+function renderDM(target){
+  let box=document.getElementById("dmBox");
+  box.innerHTML="";
+  (dmMessages[target]||[]).forEach(m=>{
+    box.innerHTML+=`<div><b>${m.from}:</b> ${m.msg}</div>`;
+  });
+  box.scrollTop=box.scrollHeight;
+}
+
 function loginAdmin(){
-  const p = document.getElementById('adminPass').value.trim();
-  if(p === 'NEONUM31'){ isAdmin = true; document.getElementById('adminPanel').style.display='block'; alert('Admin giriş başarılı'); renderAll(); }
-  else alert('Şifre yanlış');
+  if(document.getElementById("adminPass").value=="1234"){
+    isAdmin=true;
+    document.getElementById("adminPanel").classList.remove("hidden");
+    renderAll();
+  }else alert("Yanlış şifre");
 }
 function loginOwner(){
-  const p = document.getElementById('ownerPass').value.trim();
-  if(p === 'OWNERNEON'){ isOwner = true; isAdmin = true; document.getElementById('ownerPanel').style.display='block'; document.getElementById('adminPanel').style.display='block'; alert('Owner giriş başarılı'); renderAll(); }
-  else alert('Şifre yanlış');
+  if(document.getElementById("ownerPass").value=="OWNERNEON"){
+    isOwner=true;
+    document.getElementById("ownerPanel").classList.remove("hidden");
+    renderAll();
+  }else alert("Yanlış şifre");
 }
 
-/* Admin functions (buttons) */
-document.getElementById('adminAddBtn').addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Yetki yok');
-  const cat = document.getElementById('adminCategory').value;
-  const v = document.getElementById('adminNewID').value.trim();
-  if(!v) return alert('ID gir');
-  if(cat === 'normal') IDs.normal.push(v);
-  if(cat === 'phonk') IDs.phonk.push(v);
-  if(cat === 'rock') IDs.rock.push(v);
-  if(cat === 'other') IDs.other.push(v);
-  lsSet('musicIDs', IDs); document.getElementById('adminNewID').value=''; renderIDs();
-});
-document.getElementById('adminClearBtn').addEventListener('click', ()=>{
-  if(!isAdmin) return;
-  if(confirm('Sohbet temizlensin mi?')){ chatHistory = []; lsSet('chatHistory', chatHistory); renderChat(); }
-});
-document.getElementById('adminBanBtn').addEventListener('click', ()=>{
-  if(!isAdmin) return alert('Yetki yok');
-  const tgt = document.getElementById('banTarget').value.trim(); if(!tgt) return alert('Hedef gir');
-  const h = parseInt(document.getElementById('banDuration').value);
-  const exp = h === 0 ? -1 : Date.now() + h*60*60*1000;
-  bans[tgt] = exp; lsSet('bans', bans); alert(tgt + ' banlandı');
-});
+function announce(){
+  let val=prompt("Duyuru mesajı:");
+  if(val){
+    messages.push({u:"📢 DUYURU",m:val});
+    renderChat();
+  }
+}
 
-/* Owner buttons */
-document.getElementById('ownerAnnBtn').addEventListener('click', ()=>{
-  if(!isOwner) return alert('Owner yetki yok');
-  const t = document.getElementById('ownerAnnouncement').value.trim(); if(!t) return alert('Metin gir');
-  announcement = t; lsSet('announcement', announcement); document.getElementById('announcement').innerText = announcement; sendSystem('Duyuru güncellendi');
-});
-document.getElementById('ownerPkgBtn').addEventListener('click', ()=>{
-  if(!isOwner) return alert('Owner yetki yok');
-  const n = document.getElementById('pkgName').value.trim(); const p = document.getElementById('pkgPrice').value.trim();
-  if(!n || !p) return alert('Bilgileri gir');
-  packages.push({name:n, price:p, added:Date.now()}); lsSet('packages', packages); renderPackages(); sendSystem('💎 Paket eklendi: ' + n + ' — ' + p + ' Robux');
-});
-document.getElementById('ownerTagBtn').addEventListener('click', ()=>{
-  if(!isOwner) return alert('Owner yetki yok');
-  const u = document.getElementById('tagUser').value.trim(); const v = document.getElementById('tagValue').value.trim();
-  if(!u || !v) return alert('Eksik'); tags[u] = v; lsSet('tags', tags); sendSystem('🏷️ ' + u + ' tag aldı: ' + v); renderAll();
-});
+function banUser(){
+  let u=document.getElementById("banUser").value;
+  let t=parseInt(document.getElementById("banTime").value)*60000;
+  bans[u]=Date.now()+t;
+  updateUserList();
+  alert(u+" banlandı!");
+}
 
-/* packages render */
+function giveTag(){
+  let u=document.getElementById("tagUser").value;
+  let t=document.getElementById("tagText").value;
+  messages.push({u:"OWNER",m:`${u} kişisine etiket verildi: ${t}`});
+  renderChat();
+}
+
+function setPackage(){
+  let n=document.getElementById("pkgName").value;
+  let p=document.getElementById("pkgPrice").value;
+  packages[n]=p;
+  renderPackages();
+}
 function renderPackages(){
-  const el = document.getElementById('packageList'); el.innerHTML = '';
-  if(!packages.length){ el.innerText = 'Henüz paket yok'; return; }
-  packages.forEach(pk=>{
-    const d = document.createElement('div'); d.className='small'; d.innerText = pk.name + ' — ' + pk.price + ' Robux';
-    const buy = document.createElement('button'); buy.innerText='Satın al (Simülasyon)'; buy.style.marginLeft='8px'; buy.style.padding='4px 8px'; buy.onclick = ()=>{ simulateBuy(pk); };
-    d.appendChild(buy); el.appendChild(d);
-  });
-}
-function simulateBuy(pk){
-  // owner will manually grant; we simulate purchase and send chat notice
-  sendSystem('🎉 ' + username + ' paket satın aldı: ' + pk.name + ' — ' + pk.price + ' Robux');
-  // give premium tag automatically for demo
-  tags[username] = '⭐Premium'; lsSet('tags', tags); renderAll();
+  let div=document.getElementById("pkgList");
+  div.innerHTML="";
+  for(let n in packages){
+    div.innerHTML+=`<div>${n}: ${packages[n]} Robux</div>`;
+  }
 }
 
-/* system message util */
-function sendSystem(text){
-  chatHistory.push({ from: 'SYSTEM', text: text, role: 'system', time: Date.now() });
-  lsSet('chatHistory', chatHistory); renderChat();
+function toggleTheme(){
+  document.body.classList.toggle("light");
 }
 
-/* bans check */
-function checkSelfBan(){
-  const b = bans[username];
-  if(!b) return false;
-  if(b === -1){ alert('Kalıcı banlandınız!'); return true; }
-  if(Date.now() < b){ const mins = Math.ceil((b-Date.now())/60000); alert('Uzaklaştırıldınız: ' + mins + ' dk kaldı'); return true; }
-  delete bans[username]; lsSet('bans', bans); return false;
-}
-
-/* nickname */
-document.getElementById('saveNick').addEventListener('click', ()=>{
-  const v = document.getElementById('nickname').value.trim(); if(!v) return alert('İsim gir');
-  username = v; lsSet('nickname', username); touchActive(); renderUserList(); alert('Kullanıcı adı kaydedildi: ' + username);
-});
-
-/* sending chat by button / enter */
-document.getElementById('sendBtn').addEventListener('click', sendChat);
-document.getElementById('chatInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChat(); });
-
-/* DM helper: render dm areas when data loaded */
-function renderDMAreaIfOpen(){ if(document.getElementById('dmPanel')) renderDMArea(); }
-
-/* load persisted stores into runtime vars (already done above) */
-chatHistory = lsGet('chatHistory', chatHistory);
-dmStore = lsGet('dmStore', dmStore);
-tags = lsGet('tags', tags);
-bans = lsGet('bans', bans);
-packages = lsGet('packages', packages);
-announcement = lsGet('announcement', announcement);
-
+users.push(username);
+updateUserList();
 renderAll();
-renderPackages();
-
-/* active users list render helper */
-function renderUserListWrapper(){ touchActive(); renderUserList(); }
-setInterval(renderUserListWrapper, 5000);
-
-/* expose some methods for inline calls */
-window.openDM = openDM;
-window.addIDInline = addIDInline;
-window.renderAll = renderAll;
-window.renderIDs = renderIDs;
-
-/* small safety: beforeunload remove yourself from activeUsers */
-window.addEventListener('beforeunload', ()=>{
-  let users = lsGet('activeUsers', []);
-  users = users.filter(u=>u.name !== username);
-  lsSet('activeUsers', users);
-});
 </script>
 </body>
 </html>
