@@ -1,679 +1,312 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Roblox Müzik ID Paylaşım</title>
-<style>
-  :root{
-    --bg:#0d0f12; --panel:#111315; --muted:#9aa2ad; --accent:#2bb6ff; --accent2:#ff4d79;
-    --card:#131516; --success:#00c97a;
-  }
-  html,body{height:100%;margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#f4f6f8;}
-  .wrap{max-width:1100px;margin:18px auto;padding:12px;}
-  header{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px 16px;background:linear-gradient(90deg,#0f1113, #15181a);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.6)}
-  h1{margin:0;font-size:20px;color:var(--accent);}
-  .top-actions{display:flex;gap:8px;align-items:center;}
-  button, .btn{background:#1d2226;border:0;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
-  button:hover,.btn:hover{filter:brightness(.95)}
-  .layout{display:flex;gap:14px;margin-top:14px}
-  nav{width:220px;background:var(--panel);padding:12px;border-radius:10px;height:calc(100vh - 170px);box-sizing:border-box}
-  nav .item{padding:10px;border-radius:8px;color:var(--muted);cursor:pointer;margin-bottom:8px}
-  nav .item.active{background:#23272a;color:#fff}
-  main{flex:1}
-  .card{background:var(--card);padding:16px;border-radius:10px;margin-bottom:14px;box-shadow:0 6px 16px rgba(0,0,0,.5)}
-  h2.section{margin:0 0 10px 0;color:var(--accent)}
-  .id-list li{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.02);margin-bottom:8px}
-  .id-list li .actions button{margin-left:6px}
-  #chatBox, #dmBoxInner{background:#0b0c0d;padding:10px;height:260px;overflow:auto;border-radius:8px}
-  .chat-inputs{display:flex;gap:8px;margin-top:8px}
-  input[type=text],input[type=password],select,textarea{background:#0b0c0d;border:1px solid #222;padding:8px;border-radius:8px;color:#fff;outline:none;width:100%}
-  .small{font-size:13px;color:var(--muted)}
-  .muted{color:var(--muted)}
-  .label{font-weight:600;margin-bottom:6px;display:block;color:#dbe7ee}
-  .flex{display:flex;gap:8px;align-items:center}
-  .right{margin-left:auto}
-  .tag{background:#222;padding:4px 8px;border-radius:999px;color:#fff;font-size:13px}
-  footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
-  .danger{background:#6f1d1d}
-  .ok{background:var(--success)}
-  /* responsive */
-  @media(max-width:880px){nav{display:none} .layout{flex-direction:column} header{flex-direction:column;gap:8px}}
-</style>
+  <meta charset="UTF-8">
+  <title>Müzik ID Paylaşım</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0d0d0d; color:white; text-align:center; }
+    .container { max-width: 900px; margin:auto; padding:20px; }
+    h1 { color:#ff3333; }
+    h2 { color:#33aaff; }
+    h3 { color:#ff5555; }
+    button { background:#222; color:white; border:none; padding:6px 12px; margin:5px; border-radius:6px; cursor:pointer; }
+    button:hover { background:#444; }
+    input, select { padding:6px; margin:5px; border-radius:4px; border:none; }
+    .box { background:#1a1a1a; padding:15px; border-radius:8px; margin-top:20px; }
+    #chatBox, #dmMessages { background:#111; height:150px; overflow-y:auto; padding:10px; border-radius:6px; text-align:left; }
+    #activeUsers div { cursor:pointer; margin:4px; padding:4px; background:#222; border-radius:4px; }
+    #activeUsers div:hover { background:#333; }
+    #dmBox { display:none; position:fixed; bottom:20px; right:20px; width:250px; background:#222; padding:10px; border-radius:8px; }
+    #logs { background:#111; height:120px; overflow-y:auto; padding:10px; border-radius:6px; text-align:left; margin-top:10px; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🎵 Roblox Müzik ID Paylaşım</h1>
-    <div class="top-actions">
-      <div id="announceBar" style="background:#ffd43b;color:#111;padding:6px 10px;border-radius:8px;font-weight:700;display:none">YENİ: Güncelleme yakında!</div>
-      <button id="themeBtn" class="btn">Tema</button>
-      <div id="userBadge" class="tag">Guest</div>
+  <div class="container">
+    <h1>🎵 Roblox Müzik ID Paylaşım 🎵</h1>
+
+    <!-- Giriş ekranı -->
+    <div id="loginBox" class="box">
+      <h2>Giriş Yap</h2>
+      <input type="text" id="username" placeholder="Kullanıcı adı"><br>
+      <input type="password" id="password" placeholder="Şifre (opsiyonel)"><br>
+      <button onclick="login()">Giriş</button>
     </div>
-  </header>
 
-  <div class="layout">
-    <nav>
-      <div class="item active" data-view="music">🎵 Müzikler</div>
-      <div class="item" data-view="chat">💬 Sohbet</div>
-      <div class="item" data-view="packages">📦 Paketler</div>
-      <div class="item" data-view="admin">🔑 Admin Giriş</div>
-      <div class="item" data-view="owner">👑 Owner Giriş</div>
-      <div class="item" data-view="logs">📝 Logs</div>
-      <hr style="border:none;border-top:1px solid #1c1f22;margin:12px 0">
-      <div class="small muted">Aktif kullanıcı: <span id="activeCount">0</span></div>
-      <div id="activeList" style="margin-top:8px"></div>
-    </nav>
+    <!-- Ana içerik -->
+    <div id="mainContent" style="display:none;">
+      <h2 id="welcomeMsg"></h2>
+      <h3 id="roleMsg"></h3>
 
-    <main>
-      <!-- MUSIC VIEW -->
-      <section id="view-music" class="card view">
-        <h2 class="section">Müzikler</h2>
-        <div class="card">
-          <h3 class="small muted">Normal</h3>
-          <ul id="list-normal" class="id-list"></ul>
-        </div>
-        <div class="card">
-          <h3 class="small muted">Phonk</h3>
-          <ul id="list-phonk" class="id-list"></ul>
-        </div>
-        <div class="card">
-          <h3 class="small muted">Rock</h3>
-          <ul id="list-rock" class="id-list"></ul>
-        </div>
-        <div class="card">
-          <h3 class="small muted">Diğer</h3>
-          <ul id="list-other" class="id-list"></ul>
-        </div>
-      </section>
+      <!-- Duyuru -->
+      <div id="duyuru" class="box">📢 Hoş geldiniz!</div>
 
-      <!-- CHAT VIEW -->
-      <section id="view-chat" class="card view" style="display:none">
-        <h2 class="section">💬 Sohbet</h2>
+      <!-- ID Listeleri -->
+      <div class="box">
+        <h2>Normal Müzikler</h2>
+        <ul id="normalList"></ul>
+
+        <h2>Phonk</h2>
+        <ul id="phonkList"></ul>
+
+        <h2>Rock</h2>
+        <ul id="rockList"></ul>
+
+        <h2>Diğer</h2>
+        <ul id="otherList"></ul>
+      </div>
+
+      <!-- Chat -->
+      <div class="box">
+        <h2>💬 Sohbet</h2>
         <div id="chatBox"></div>
-        <div class="chat-inputs" style="margin-top:8px">
-          <input id="chatInput" type="text" placeholder="Mesaj yaz...">
-          <button id="sendMsgBtn" class="btn">Gönder</button>
-        </div>
-      </section>
+        <input type="text" id="chatInput" placeholder="Mesaj yaz...">
+        <button onclick="sendMessage()">Gönder</button>
+      </div>
 
-      <!-- PACKAGES VIEW -->
-      <section id="view-packages" class="card view" style="display:none">
-        <h2 class="section">📦 Paketler</h2>
-        <div id="packagesList"></div>
-      </section>
+      <!-- Aktif kullanıcılar -->
+      <div class="box">
+        <h2>👥 Aktif Kullanıcılar (<span id="activeCount">0</span>)</h2>
+        <div id="activeUsers"></div>
+      </div>
 
-      <!-- ADMIN LOGIN / PANEL-->
-      <section id="view-admin" class="card view" style="display:none">
-        <h2 class="section">🔑 Admin Giriş / Panel</h2>
-        <div id="adminLoginBox" class="card">
-          <label class="label">Admin olarak giriş</label>
-          <input id="adminUser" type="text" placeholder="Kullanıcı adı">
-          <input id="adminPass" type="password" placeholder="Parola">
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="adminLoginBtn" class="btn">Giriş</button>
-            <button id="adminLogoutBtn" class="btn" style="display:none">Çıkış</button>
-            <div class="small muted right">Admin: sadece owner tarafından açılabilir</div>
-          </div>
-        </div>
+      <!-- Admin Panel -->
+      <div id="adminPanel" class="box" style="display:none;">
+        <h2>⚙️ Admin Paneli</h2>
+        <input type="text" id="adminNewID" placeholder="Yeni ID ekle">
+        <button onclick="adminAddID()">Ekle</button><br>
 
-        <div id="adminPanel" class="card" style="display:none">
-          <h3 class="small muted">Admin İşlemleri</h3>
+        <input type="text" id="banUser" placeholder="Banlanacak kullanıcı">
+        <select id="banTime">
+          <option value="0">Kalıcı</option>
+          <option value="1">1 Saat</option>
+          <option value="24">1 Gün</option>
+        </select>
+        <button onclick="banUser()">Banla</button><br>
 
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input id="adminAddIDInput" placeholder="ID ekle (Normal)"><button onclick="adminAddID()" class="btn">Ekle</button>
-            <input id="adminAddPhonk" placeholder="ID ekle (Phonk)"><button onclick="adminAddPhonk()" class="btn">Ekle</button>
-            <input id="adminAddRock" placeholder="ID ekle (Rock)"><button onclick="adminAddRock()" class="btn">Ekle</button>
-            <input id="adminAddOther" placeholder="ID ekle (Diğer)"><button onclick="adminAddOther()" class="btn">Ekle</button>
-          </div>
+        <input type="text" id="muteUser" placeholder="Susturulacak kullanıcı">
+        <select id="muteTime">
+          <option value="5">5 Dakika</option>
+          <option value="60">1 Saat</option>
+          <option value="1440">1 Gün</option>
+        </select>
+        <button onclick="muteUser()">Sustur</button>
 
-          <div style="margin-top:12px">
-            <label class="label">Ban / Mute</label>
-            <input id="adminTarget" placeholder="Kullanıcı adı">
-            <select id="adminBanTime">
-              <option value="0">Kalıcı</option>
-              <option value="1">1 Saat</option>
-              <option value="24">24 Saat</option>
-            </select>
-            <button onclick="adminBan()" class="btn danger">Banla</button>
+        <h3>Logs</h3>
+        <div id="logs"></div>
+      </div>
 
-            <select id="adminMuteTime">
-              <option value="5">5 Dakika</option>
-              <option value="60">1 Saat</option>
-              <option value="1440">1 Gün</option>
-            </select>
-            <button onclick="adminMute()" class="btn">Sustur</button>
-          </div>
+      <!-- Owner Panel -->
+      <div id="ownerPanel" class="box" style="display:none;">
+        <h2>👑 Owner Paneli</h2>
 
-          <div style="margin-top:12px">
-            <label class="label">Logs</label>
-            <div id="logsAdmin" style="background:#0b0c0d;padding:8px;border-radius:8px;height:150px;overflow:auto"></div>
-          </div>
-        </div>
-      </section>
+        <h3>ID Yönetimi</h3>
+        <input type="text" id="ownerNewID" placeholder="Yeni ID">
+        <select id="idCategory">
+          <option value="normal">Normal</option>
+          <option value="phonk">Phonk</option>
+          <option value="rock">Rock</option>
+          <option value="other">Diğer</option>
+        </select>
+        <button onclick="ownerAddID()">Ekle</button><br>
 
-      <!-- OWNER LOGIN / PANEL-->
-      <section id="view-owner" class="card view" style="display:none">
-        <h2 class="section">👑 Owner Giriş / Panel</h2>
-        <div id="ownerSetupBox" class="card">
-          <div id="ownerSetupDesc" class="small muted">Eğer owner parolasını henüz oluşturmamışsan önce oluştur.</div>
-          <input id="ownerUser" type="text" placeholder="Owner kullanıcı adın">
-          <input id="ownerPass" type="password" placeholder="Owner parola (gizli saklanacak)">
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="ownerSetupBtn" class="btn">Owner Parola Oluştur</button>
-            <button id="ownerLoginBtn" class="btn" style="display:none">Owner Giriş</button>
-            <button id="ownerLogoutBtn" class="btn" style="display:none">Çıkış</button>
-          </div>
-        </div>
+        <h3>Duyuru</h3>
+        <input type="text" id="newAnnouncement" placeholder="Yeni duyuru">
+        <button onclick="setAnnouncement()">Gönder</button><br>
 
-        <div id="ownerPanel" class="card" style="display:none">
-          <h3 class="small muted">Owner İşlemleri (Tüm yetkiler)</h3>
+        <h3>Paket Yönetimi</h3>
+        <input type="text" id="newPackage" placeholder="Paket adı">
+        <input type="text" id="packagePrice" placeholder="Fiyat (Robux)">
+        <button onclick="addPackage()">Ekle</button>
+        <div id="packageList"></div><br>
 
-          <div style="margin-top:8px">
-            <label class="label">ID Yönetimi</label>
-            <input id="ownerAddID" placeholder="Yeni ID">
-            <select id="ownerAddCat">
-              <option value="normal">Normal</option>
-              <option value="phonk">Phonk</option>
-              <option value="rock">Rock</option>
-              <option value="other">Diğer</option>
-            </select>
-            <button onclick="ownerAddNewID()" class="btn">Ekle</button>
-          </div>
+        <h3>Tag Verme</h3>
+        <input type="text" id="tagUser" placeholder="Kullanıcı">
+        <input type="text" id="tagName" placeholder="Tag (VIP)">
+        <button onclick="giveTag()">Ver</button><br>
 
-          <div style="margin-top:12px">
-            <label class="label">Duyuru</label>
-            <input id="ownerAnn" placeholder="Duyuru metni">
-            <button onclick="ownerAnnouncement()" class="btn">Yayınla</button>
-          </div>
+        <h3>Ban/Mute (Owner)</h3>
+        <input type="text" id="ownerBanUser" placeholder="Banlanacak kullanıcı">
+        <select id="ownerBanTime">
+          <option value="0">Kalıcı</option>
+          <option value="1">1 Saat</option>
+          <option value="24">1 Gün</option>
+        </select>
+        <button onclick="banUser(true)">Banla</button><br>
 
-          <div style="margin-top:12px">
-            <label class="label">Paket Yönetimi</label>
-            <input id="pkgName" placeholder="Paket adı">
-            <input id="pkgPrice" placeholder="Fiyat (ör: 300)">
-            <textarea id="pkgInfo" placeholder="Paket açıklaması / kodu" style="height:60px"></textarea>
-            <div style="margin-top:6px">
-              <button onclick="ownerAddPackage()" class="btn">Paket Ekle</button>
-            </div>
-            <div id="ownerPackageList" style="margin-top:8px"></div>
-          </div>
+        <input type="text" id="ownerMuteUser" placeholder="Susturulacak kullanıcı">
+        <select id="ownerMuteTime">
+          <option value="5">5 Dakika</option>
+          <option value="60">1 Saat</option>
+          <option value="1440">1 Gün</option>
+        </select>
+        <button onclick="muteUser(true)">Sustur</button>
 
-          <div style="margin-top:12px">
-            <label class="label">Tag verme</label>
-            <input id="giveTagUser" placeholder="Kullanıcı">
-            <input id="giveTagName" placeholder="Tag (ör: VIP)">
-            <button onclick="ownerGiveTag()" class="btn">Tag Ver</button>
-          </div>
-
-          <div style="margin-top:12px">
-            <label class="label">Owner Logs</label>
-            <div id="logsOwner" style="background:#0b0c0d;padding:8px;border-radius:8px;height:150px;overflow:auto"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- LOGS VIEW -->
-      <section id="view-logs" class="card view" style="display:none">
-        <h2 class="section">📝 Tüm Logs</h2>
-        <div id="allLogs" style="background:#0b0c0d;padding:12px;border-radius:8px;height:320px;overflow:auto"></div>
-      </section>
-
-      <footer>Copyright © - hazır statik demo - düzenle: sen</footer>
-    </main>
+        <h3>Logs</h3>
+        <div id="ownerLogs"></div>
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-/* ============================
-   Basit, lokal veritabanı (localStorage)
-   ============================ */
+  <!-- DM Kutusu -->
+  <div id="dmBox">
+    <h3>📩 Özel Mesaj</h3>
+    <div id="dmMessages"></div>
+    <input type="text" id="dmInput" placeholder="Mesaj yaz...">
+    <button onclick="sendDM()">Gönder</button>
+  </div>
 
-/* Helper: UUID kısa */
-function uid(){return Math.random().toString(36).slice(2,10);}
+  <script>
+    let musicIDs = ["114377669273691","134907421285608"];
+    let phonkIDs = ["74431247827459"];
+    let rockIDs = ["104168792634229"];
+    let otherIDs = ["130525432946828"];
 
-/* Storage keys */
-const KEY = {
-  NORMAL: 'ids_normal',
-  PHONK: 'ids_phonk',
-  ROCK: 'ids_rock',
-  OTHER: 'ids_other',
-  LOGS: 'site_logs',
-  PACKS: 'site_packs',
-  TAGS: 'site_tags',
-  ACTIVE: 'site_active',
-  OWNER_HASH: 'site_owner_hash',
-  ADMIN_HASH: 'site_admin_hash',
-  BANS: 'site_bans',
-  MUTES: 'site_mutes',
-  CHAT: 'site_chat'
-};
+    let chatMessages = [];
+    let activeUsers = [];
+    let currentUser = null;
+    let currentRole = "guest";
+    let currentDM = null;
 
-/* Defaults - başlangıç ID'leri (senin verdiğinler) */
-const defaults = {
-  normal: ["114377669273691","134907421285608","104168792634229","105008782996692"],
-  phonk: ["74431247827459"],
-  rock: ["118245433375755"],
-  other: ["130525432946828","99830662289112"]
-};
+    // Giriş
+    function login() {
+      let user = document.getElementById("username").value.trim();
+      let pass = document.getElementById("password").value.trim();
+      if(!user) { alert("Kullanıcı adı gir!"); return; }
 
-/* Local helpers */
-function load(key, fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch(e){return fallback}}
-function save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+      if(pass === "NEONUM31") currentRole = "admin";
+      else if(pass === "OWNERNEON") currentRole = "owner";
+      else currentRole = "guest";
 
-/* yükle veya defaultu koy */
-if(!localStorage.getItem(KEY.NORMAL)) save(KEY.NORMAL, defaults.normal);
-if(!localStorage.getItem(KEY.PHONK)) save(KEY.PHONK, defaults.phonk);
-if(!localStorage.getItem(KEY.ROCK)) save(KEY.ROCK, defaults.rock);
-if(!localStorage.getItem(KEY.OTHER)) save(KEY.OTHER, defaults.other);
+      currentUser = user;
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+      document.getElementById("welcomeMsg").innerText = "Hoş geldin, " + user;
+      document.getElementById("roleMsg").innerText = "Rolün: " + currentRole;
 
-/* chat */
-if(!localStorage.getItem(KEY.CHAT)) save(KEY.CHAT, []);
+      if(currentRole === "admin") document.getElementById("adminPanel").style.display = "block";
+      if(currentRole === "owner") document.getElementById("ownerPanel").style.display = "block";
 
-/* logs ekle */
-function addLog(type, text){
-  const logs = load(KEY.LOGS, []);
-  const entry = {id: uid(), time: Date.now(), type, text};
-  logs.unshift(entry);
-  save(KEY.LOGS, logs);
-  renderLogs();
-}
+      addActiveUser(user);
+      renderIDs();
+    }
 
-/* render tüm logs */
-function renderLogs(){
-  const all = load(KEY.LOGS, []);
-  document.getElementById('allLogs').innerHTML = all.map(l => `<div style="padding:6px;border-bottom:1px solid #0f1112"><b>[${new Date(l.time).toLocaleString()}]</b> <span class="muted">(${l.type})</span> — ${escapeHtml(l.text)}</div>`).join('');
-  document.getElementById('logsAdmin').innerHTML = document.getElementById('allLogs').innerHTML;
-  document.getElementById('logsOwner').innerHTML = document.getElementById('allLogs').innerHTML;
-}
+    // ID Göster
+    function renderIDs() {
+      document.getElementById("normalList").innerHTML = musicIDs.map(id => `<li>${id}</li>`).join("");
+      document.getElementById("phonkList").innerHTML = phonkIDs.map(id => `<li>${id}</li>`).join("");
+      document.getElementById("rockList").innerHTML = rockIDs.map(id => `<li>${id}</li>`).join("");
+      document.getElementById("otherList").innerHTML = otherIDs.map(id => `<li>${id}</li>`).join("");
+    }
 
-/* escape */
-function escapeHtml(s){if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+    // Chat
+    function sendMessage() {
+      let input = document.getElementById("chatInput");
+      let msg = input.value.trim();
+      if(!msg) return;
 
-/* ============================
-   Kimlik & Parola (şifre gizli tutulur)
-   - Parolalar: WebCrypto ile hashlenip localStorage'a kaydedilir.
-   - Owner kurulum: ilk kez owner hash yoksa owner oluştur.
-   - Admin ancak owner tarafından oluşturulur (owner panelden).
-   ============================ */
+      let mute = localStorage.getItem("mute_" + currentUser);
+      if(mute && Date.now() < mute) { alert("Susturuldun!"); return; }
 
-/* WebCrypto SHA-256 hash (hex) */
-async function sha256Hex(str){
-  const enc = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('SHA-256', enc);
-  const arr = Array.from(new Uint8Array(hash));
-  return arr.map(b => b.toString(16).padStart(2,'0')).join('');
-}
+      chatMessages.push(currentUser + ": " + msg);
+      renderChat();
+      input.value = "";
+    }
+    function renderChat() {
+      document.getElementById("chatBox").innerHTML = chatMessages.map(m => `<div>${m}</div>`).join("");
+    }
 
-/* store hashed password */
-async function setOwnerPassword(password){
-  const h = await sha256Hex(password);
-  save(KEY.OWNER_HASH, h);
-  addLog('owner','Owner parola oluşturuldu');
-}
-async function verifyOwner(password){
-  const stored = localStorage.getItem(KEY.OWNER_HASH);
-  if(!stored) return false;
-  const got = await sha256Hex(password);
-  return got === stored;
-}
-async function setAdminPassword(password){
-  const h = await sha256Hex(password);
-  save(KEY.ADMIN_HASH, h);
-  addLog('admin','Admin parola set edildi (owner tarafından)');
-}
-async function verifyAdmin(password){
-  const stored = localStorage.getItem(KEY.ADMIN_HASH);
-  if(!stored) return false;
-  const got = await sha256Hex(password);
-  return got === stored;
-}
+    // Aktif kullanıcılar
+    function addActiveUser(user) {
+      if(!activeUsers.includes(user)) activeUsers.push(user);
+      document.getElementById("activeUsers").innerHTML = activeUsers.map(u => `<div onclick="openDM('${u}')">${u}</div>`).join("");
+      document.getElementById("activeCount").innerText = activeUsers.length;
+    }
 
-/* ============================
-   UI & Rendering
-   ============================ */
+    // Admin fonksiyonları
+    function adminAddID() {
+      let newID = document.getElementById("adminNewID").value.trim();
+      if(newID) { musicIDs.push(newID); renderIDs(); logAction("Admin ID ekledi: " + newID); }
+    }
+    function banUser(isOwner=false) {
+      let target = isOwner ? document.getElementById("ownerBanUser").value.trim() : document.getElementById("banUser").value.trim();
+      let hours = parseInt(isOwner ? document.getElementById("ownerBanTime").value : document.getElementById("banTime").value);
+      if(!target) return;
+      let expire = hours === 0 ? -1 : Date.now() + hours*60*60*1000;
+      localStorage.setItem("ban_" + target, expire);
+      logAction((isOwner ? "Owner" : "Admin") + " banladı: " + target);
+    }
+    function muteUser(isOwner=false) {
+      let target = isOwner ? document.getElementById("ownerMuteUser").value.trim() : document.getElementById("muteUser").value.trim();
+      let minutes = parseInt(isOwner ? document.getElementById("ownerMuteTime").value : document.getElementById("muteTime").value);
+      if(!target) return;
+      let expire = Date.now() + minutes*60*1000;
+      localStorage.setItem("mute_" + target, expire);
+      logAction((isOwner ? "Owner" : "Admin") + " susturdu: " + target);
+    }
 
-/* view switching */
-document.querySelectorAll('nav .item').forEach(it=>{
-  it.addEventListener('click',()=>{document.querySelectorAll('nav .item').forEach(i=>i.classList.remove('active'));it.classList.add('active'); showView(it.dataset.view)});
-});
-function showView(name){
-  document.querySelectorAll('main .view').forEach(v=>v.style.display='none');
-  document.getElementById('view-'+name).style.display='block';
-}
+    // Owner fonksiyonları
+    function ownerAddID() {
+      let newID = document.getElementById("ownerNewID").value.trim();
+      let cat = document.getElementById("idCategory").value;
+      if(newID) {
+        if(cat==="normal") musicIDs.push(newID);
+        else if(cat==="phonk") phonkIDs.push(newID);
+        else if(cat==="rock") rockIDs.push(newID);
+        else otherIDs.push(newID);
+        renderIDs();
+        logAction("Owner ID ekledi: " + newID);
+      }
+    }
+    function setAnnouncement() {
+      let msg = document.getElementById("newAnnouncement").value.trim();
+      if(msg) { document.getElementById("duyuru").innerText = "📢 " + msg; logAction("Owner duyuru yaptı: " + msg); }
+    }
+    function addPackage() {
+      let name = document.getElementById("newPackage").value.trim();
+      let price = document.getElementById("packagePrice").value.trim();
+      if(name && price) {
+        let list = document.getElementById("packageList");
+        let div = document.createElement("div");
+        div.innerText = name + " - " + price + " Robux";
+        list.appendChild(div);
+        logAction("Owner paket ekledi: " + name);
+      }
+    }
+    function giveTag() {
+      let user = document.getElementById("tagUser").value.trim();
+      let tag = document.getElementById("tagName").value.trim();
+      if(user && tag) {
+        localStorage.setItem("tag_" + user, tag);
+        logAction("Owner tag verdi: " + user + " → " + tag);
+      }
+    }
 
-/* render id lists */
-function renderIdLists(){
-  const normals = load(KEY.NORMAL, []);
-  const phonks = load(KEY.PHONK, []);
-  const rocks = load(KEY.ROCK, []);
-  const others = load(KEY.OTHER, []);
-  function makeList(arr, containerId, cat){
-    const container = document.getElementById(containerId);
-    container.innerHTML = arr.map((id,idx)=>`
-      <li>
-        <span>${escapeHtml(id)}</span>
-        <div class="actions">
-          <button onclick="copyText('${id}')" class="btn">Kopyala</button>
-          ${isOwnerActive()||isAdminActive()?`<button onclick="deleteId('${cat}',${idx})" class="btn danger">Sil</button>`:''}
-        </div>
-      </li>
-    `).join('');
-  }
-  makeList(normals,'list-normal','normal');
-  makeList(phonks,'list-phonk','phonk');
-  makeList(rocks,'list-rock','rock');
-  makeList(others,'list-other','other');
-}
-function copyText(txt){
-  navigator.clipboard.writeText(txt).then(()=>alert('Kopyalandı: '+txt));
-}
+    // Logs
+    function logAction(text) {
+      let logs = document.getElementById("logs");
+      let ownerLogs = document.getElementById("ownerLogs");
+      let line = document.createElement("div");
+      line.innerText = new Date().toLocaleTimeString() + " - " + text;
+      if(logs) logs.appendChild(line);
+      if(ownerLogs) ownerLogs.appendChild(line.cloneNode(true));
+    }
 
-/* delete id (owner/admin) */
-function deleteId(cat,index){
-  if(!confirm('Silinsin mi?')) return;
-  let arr = load(KEY[cat.toUpperCase()],[]);
-  arr.splice(index,1);
-  save(KEY[cat.toUpperCase()], arr);
-  renderIdLists();
-  addLog('id','ID silindi: '+cat+' idx:'+index);
-}
-
-/* ============================
-   Admin & Owner check helper (session)
-   ============================ */
-let session = {user:'Guest',role:'guest'}; // role: guest/admin/owner
-function setSession(user, role){
-  session.user = user; session.role = role;
-  document.getElementById('userBadge').innerText = `${user} (${role})`;
-}
-function isAdminActive(){ return session.role==='admin'; }
-function isOwnerActive(){ return session.role==='owner'; }
-
-/* ============================
-   Active users (local storage lightweight)
-   - Tarayıcı bazlı tutuyoruz; gerçek çok-kullanıcılı istersen sunucu gerekir.
-   ============================ */
-function addActive(name){
-  // simple unique list
-  const arr = load(KEY.ACTIVE, []);
-  if(!arr.includes(name)) arr.push(name);
-  save(KEY.ACTIVE, arr);
-  renderActive();
-}
-function renderActive(){
-  const arr = load(KEY.ACTIVE, []);
-  document.getElementById('activeCount').innerText = arr.length;
-  document.getElementById('activeList').innerHTML = arr.map(u=>`<div style="padding:6px;border-radius:6px;background:#0b0c0d;margin-bottom:6px;cursor:pointer" onclick="openDM('${u}')">${escapeHtml(u)}</div>`).join('');
-}
-
-/* ============================
-   Chat (local)
-   ============================ */
-function renderChat(){
-  const msgs = load(KEY.CHAT, []);
-  document.getElementById('chatBox').innerHTML = msgs.map(m=>`<div style="padding:6px;border-bottom:1px solid #0f1112"><b>${escapeHtml(m.user)}</b>: ${escapeHtml(m.text)} <span class="small muted">(${new Date(m.time).toLocaleTimeString()})</span> ${ (isAdminActive()||isOwnerActive())?`<button onclick="deleteChat('${m.id}')" style="margin-left:8px">Sil</button>`:'' }</div>`).join('');
-}
-function sendChat(){
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim(); if(!text) return;
-  // ban check
-  const bans = load(KEY.BANS, {});
-  const banVal = bans[session.user];
-  if(banVal){
-    if(banVal === -1) { alert('Kalıcı banlandınız'); return; }
-    if(Date.now() < banVal) { alert('Banlısınız!'); return; }
-    // expired
-    delete bans[session.user]; save(KEY.BANS,bans);
-  }
-  // mute check
-  const mutes = load(KEY.MUTES, {});
-  const muteVal = mutes[session.user];
-  if(muteVal && Date.now() < muteVal){ alert('Susturuldunuz!'); return; }
-
-  const msgs = load(KEY.CHAT, []);
-  msgs.unshift({id:uid(),user:session.user,text,time:Date.now()});
-  save(KEY.CHAT,msgs);
-  renderChat();
-  input.value='';
-  addLog('chat', session.user + ' mesaj gönderdi');
-}
-function deleteChat(id){
-  let msgs = load(KEY.CHAT, []);
-  msgs = msgs.filter(m=>m.id!==id);
-  save(KEY.CHAT,msgs);
-  renderChat();
-  addLog('chat','Mesaj silindi ID:'+id);
-}
-
-/* ============================
-   Admin functions
-   ============================ */
-async function adminLogin(){
-  const user = document.getElementById('adminUser').value.trim();
-  const pass = document.getElementById('adminPass').value;
-  if(!user || !pass) return alert('Bilgi gir');
-  const ok = await verifyAdmin(pass);
-  if(!ok) return alert('Hatalı admin parola');
-  setSession(user,'admin');
-  document.getElementById('adminPanel').style.display='block';
-  document.getElementById('adminLoginBtn').style.display='none';
-  document.getElementById('adminLogoutBtn').style.display='inline-block';
-  addLog('auth','Admin giriş: '+user);
-}
-function adminLogout(){
-  setSession('Guest','guest');
-  document.getElementById('adminPanel').style.display='none';
-  document.getElementById('adminLogoutBtn').style.display='none';
-  document.getElementById('adminLoginBtn').style.display='inline-block';
-  addLog('auth','Admin çıkış');
-}
-
-/* Admin add ID helpers */
-function adminAddID(){
-  const v = document.getElementById('adminAddIDInput').value.trim();
-  if(!v) return;
-  const arr = load(KEY.NORMAL, []);
-  arr.unshift(v); save(KEY.NORMAL,arr); renderIdLists();
-  addLog('id','Admin ekledi (normal): '+v);
-}
-function adminAddPhonk(){ const v=document.getElementById('adminAddPhonk').value.trim(); if(!v) return; const a=load(KEY.PHONK,[]); a.unshift(v); save(KEY.PHONK,a); renderIdLists(); addLog('id','Admin ekledi (phonk): '+v); }
-function adminAddRock(){ const v=document.getElementById('adminAddRock').value.trim(); if(!v) return; const a=load(KEY.ROCK,[]); a.unshift(v); save(KEY.ROCK,a); renderIdLists(); addLog('id','Admin ekledi (rock): '+v); }
-function adminAddOther(){ const v=document.getElementById('adminAddOther').value.trim(); if(!v) return; const a=load(KEY.OTHER,[]); a.unshift(v); save(KEY.OTHER,a); renderIdLists(); addLog('id','Admin ekledi (other): '+v); }
-
-/* Admin ban/mute */
-function adminBan(){ if(!isAdminActive() && !isOwnerActive()) return alert('Yetki yok'); const t=document.getElementById('adminTarget').value.trim(); if(!t) return; const hours=parseInt(document.getElementById('adminBanTime').value); const bans=load(KEY.BANS,{}); bans[t] = hours===0? -1 : Date.now()+hours*3600*1000; save(KEY.BANS,bans); addLog('admin','Ban: '+t+' süresi:'+hours); alert('Banlandı'); }
-function adminMute(){ if(!isAdminActive() && !isOwnerActive()) return alert('Yetki yok'); const t=document.getElementById('adminTarget').value.trim(); if(!t) return; const mins=parseInt(document.getElementById('adminMuteTime').value); const mutes=load(KEY.MUTES,{}); mutes[t] = Date.now()+mins*60*1000; save(KEY.MUTES,mutes); addLog('admin','Mute: '+t+' dakika='+mins); alert('Susturuldu'); }
-
-/* ============================
-   Owner functions (owner has every right + packages)
-   ============================ */
-async function ownerSetup(){
-  const user = document.getElementById('ownerUser').value.trim();
-  const pass = document.getElementById('ownerPass').value;
-  if(!user || !pass) return alert('Bilgi gir');
-  if(localStorage.getItem(KEY.OWNER_HASH)) return alert('Owner zaten ayarlı. Giriş yapın.');
-  await setOwnerPassword(pass);
-  // set session
-  setSession(user,'owner');
-  document.getElementById('ownerSetupBtn').style.display='none';
-  document.getElementById('ownerLoginBtn').style.display='none';
-  document.getElementById('ownerLogoutBtn').style.display='inline-block';
-  document.getElementById('ownerPanel').style.display='block';
-  addActive(user);
-  addLog('owner','Owner kuruldu: '+user);
-}
-async function ownerLogin(){
-  const user = document.getElementById('ownerUser').value.trim();
-  const pass = document.getElementById('ownerPass').value;
-  if(!user || !pass) return alert('Bilgi gir');
-  const ok = await verifyOwner(pass);
-  if(!ok) return alert('Hatalı owner parola');
-  setSession(user,'owner');
-  document.getElementById('ownerPanel').style.display='block';
-  document.getElementById('ownerLoginBtn').style.display='none';
-  document.getElementById('ownerLogoutBtn').style.display='inline-block';
-  addLog('auth','Owner giriş: '+user);
-}
-function ownerLogout(){
-  setSession('Guest','guest');
-  document.getElementById('ownerPanel').style.display='none';
-  document.getElementById('ownerLogoutBtn').style.display='none';
-}
-
-/* owner add id */
-function ownerAddNewID(){
-  if(!isOwnerActive()) return alert('Owner değilsiniz');
-  const v = document.getElementById('ownerAddID').value.trim();
-  const cat = document.getElementById('ownerAddCat').value;
-  if(!v) return;
-  const key = (cat==='normal'?KEY.NORMAL: cat==='phonk'?KEY.PHONK: cat==='rock'?KEY.ROCK:KEY.OTHER);
-  const arr = load(key,[]);
-  arr.unshift(v); save(key,arr); renderIdLists(); addLog('owner','ID eklendi ('+cat+'): '+v);
-  document.getElementById('ownerAddID').value='';
-}
-
-/* owner announcement */
-function ownerAnnouncement(){
-  if(!isOwnerActive()) return alert('Owner değilsiniz');
-  const msg = document.getElementById('ownerAnn').value.trim();
-  if(!msg) return;
-  const el = document.getElementById('announceBar');
-  el.style.display='block'; el.innerText = '📢 ' + msg;
-  addLog('owner','Duyuru: '+msg);
-}
-
-/* packages */
-function ownerAddPackage(){
-  if(!isOwnerActive()) return alert('Owner değilsiniz');
-  const name = document.getElementById('pkgName').value.trim();
-  const price = document.getElementById('pkgPrice').value.trim();
-  const info = document.getElementById('pkgInfo').value.trim();
-  if(!name || !price) return alert('Bilgi gir');
-  const packs = load(KEY.PACKS, []);
-  packs.unshift({id:uid(),name,price,info});
-  save(KEY.PACKS,packs); renderPackages(); addLog('owner','Paket eklendi: '+name);
-  document.getElementById('pkgName').value=''; document.getElementById('pkgPrice').value=''; document.getElementById('pkgInfo').value='';
-}
-function renderPackages(){
-  const packs = load(KEY.PACKS, []);
-  if(!packs.length) document.getElementById('packagesList').innerHTML = '<div class="muted">Henüz paket yok.</div>';
-  else document.getElementById('packagesList').innerHTML = packs.map(p=>`<div class="card"><b>${escapeHtml(p.name)}</b> — ${escapeHtml(p.price)} Robux<br><small class="muted">${escapeHtml(p.info)}</small><div style="margin-top:6px"><button onclick="showPackage('${p.id}')" class="btn">Detay</button></div></div>`).join('');
-  // owner panel list
-  document.getElementById('ownerPackageList').innerHTML = packs.map(p=>`<div style="padding:8px;background:#0b0c0d;border-radius:6px;margin-bottom:6px">${escapeHtml(p.name)} - ${escapeHtml(p.price)} <button onclick="ownerEditPackage('${p.id}')" class="btn">Düzenle</button> <button onclick="ownerRemovePackage('${p.id}')" class="btn danger">Sil</button></div>`).join('');
-}
-function showPackage(id){
-  const packs = load(KEY.PACKS, []);
-  const p = packs.find(x=>x.id===id); if(!p) return alert('Yok');
-  alert(`${p.name}\nFiyat: ${p.price}\n\n${p.info}`);
-}
-function ownerRemovePackage(id){
-  const packs = load(KEY.PACKS, []);
-  const n = packs.filter(p=>p.id!==id);
-  save(KEY.PACKS,n); renderPackages(); addLog('owner','Paket silindi ID:'+id);
-}
-function ownerEditPackage(id){
-  const packs = load(KEY.PACKS, []);
-  const p = packs.find(x=>x.id===id); if(!p) return;
-  const name = prompt('Yeni ad', p.name); if(name===null) return;
-  const price = prompt('Yeni fiyat', p.price); if(price===null) return;
-  const info = prompt('Yeni açıklama', p.info); if(info===null) return;
-  p.name=name; p.price=price; p.info=info;
-  save(KEY.PACKS,packs); renderPackages(); addLog('owner','Paket düzenlendi ID:'+id);
-}
-
-/* tag */
-function ownerGiveTag(){
-  if(!isOwnerActive()) return alert('Owner değilsiniz');
-  const u = document.getElementById('giveTagUser').value.trim();
-  const t = document.getElementById('giveTagName').value.trim();
-  if(!u || !t) return alert('Bilgi gir');
-  const tags = load(KEY.TAGS,{});
-  tags[u]=t; save(KEY.TAGS,tags);
-  addLog('owner','Tag verildi: '+u+' => '+t);
-  alert(u+' isimli kullanıcıya tag verildi: '+t);
-}
-
-/* ============================
-   Setup / init
-   ============================ */
-document.getElementById('sendMsgBtn').addEventListener('click',sendChat);
-document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter') sendChat()});
-
-/* Admin login handlers */
-document.getElementById('adminLoginBtn').addEventListener('click',()=>{adminLogin()});
-document.getElementById('adminLogoutBtn').addEventListener('click',()=>{adminLogout()});
-
-/* Owner setup/login handlers */
-document.getElementById('ownerSetupBtn').addEventListener('click',()=>{ownerSetup()});
-document.getElementById('ownerLoginBtn').addEventListener('click',()=>{ownerLogin()});
-document.getElementById('ownerLogoutBtn').addEventListener('click',()=>{ownerLogout()});
-
-/* theme toggle (very simple) */
-document.getElementById('themeBtn').addEventListener('click',()=>{
-  document.body.classList.toggle('light');
-  if(document.body.classList.contains('light')){document.body.style.background='#f7f8fa';document.body.style.color='#111'}else{document.body.style.background='var(--bg)';document.body.style.color='#f4f6f8'}
-});
-
-/* login shortcuts: owner/admin buttons display logic (if owner hash exists, show login, else show setup) */
-function initAuthUI(){
-  const hasOwner = !!localStorage.getItem(KEY.OWNER_HASH);
-  if(hasOwner){
-    document.getElementById('ownerSetupBtn').style.display='none';
-    document.getElementById('ownerLoginBtn').style.display='inline-block';
-    document.getElementById('ownerSetupDesc').innerText='Owner kurulmuş, giriş yap.';
-  } else {
-    document.getElementById('ownerSetupBtn').style.display='inline-block';
-    document.getElementById('ownerLoginBtn').style.display='none';
-    document.getElementById('ownerSetupDesc').innerText='Owner parolanızı oluşturun (bu parola kod içerisinde gösterilmez).';
-  }
-  // admin: only show login if admin hash exists; else owner can create admin from owner panel
-  const hasAdmin = !!localStorage.getItem(KEY.ADMIN_HASH);
-  if(hasAdmin){
-    document.getElementById('adminLoginBtn').style.display='inline-block';
-  } else {
-    document.getElementById('adminLoginBtn').style.display='inline-block';
-  }
-}
-
-/* active render, id lists, packages, logs load */
-function bootstrap(){
-  renderIdLists();
-  renderChat();
-  renderPackages();
-  renderLogs();
-  renderActive();
-  initAuthUI();
-}
-bootstrap();
-
-/* small utility: open DM */
-function openDM(user){
-  if(!user) return;
-  // open chat DM in alert (simple)
-  const dm = prompt('Özel mesaj gönder: ' + user);
-  if(!dm) return;
-  // store DM as chat with special prefix
-  const msgs = load(KEY.CHAT, []);
-  msgs.unshift({id:uid(),user:session.user + ' -> ' + user,text:dm,time:Date.now()});
-  save(KEY.CHAT,msgs); renderChat(); addLog('dm', session.user + ' -> ' + user + ': '+dm);
-}
-
-/* Owner can set admin password */
-async function ownerSetAdminPassword(){
-  if(!isOwnerActive()) return alert('Owner değil');
-  const pass = prompt('Yeni admin parolası (gizli olacak, kaydedilecek):');
-  if(!pass) return;
-  await setAdminPassword(pass);
-  alert('Admin parolası ayarlandı.');
-  addLog('owner','Admin parolası ayarlandı');
-}
-
-/* Expose some functions to owner/admin via console for convenience */
-window._ownerSetAdminPassword = ownerSetAdminPassword;
-
-/* initial active add (guest) */
-addActive('Guest'); setSession('Guest','guest'); renderActive();
-
-</script>
+    // DM sistemi
+    function openDM(user) {
+      currentDM = user;
+      document.getElementById("dmBox").style.display = "block";
+      document.getElementById("dmMessages").innerHTML = "";
+    }
+    function sendDM() {
+      let input = document.getElementById("dmInput");
+      let msg = input.value.trim();
+      if(!msg) return;
+      let box = document.getElementById("dmMessages");
+      let div = document.createElement("div");
+      div.innerText = "Ben: " + msg;
+      box.appendChild(div);
+      input.value = "";
+    }
+  </script>
 </body>
 </html>
