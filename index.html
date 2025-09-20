@@ -1,231 +1,130 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Roblox Müzik ID Arama — Proxyli</title>
-<style>
-  :root{
-    --bg:#0b0b0b; --card:#121314; --accent:#06d6a0; --accent2:#7b2ff7; --muted:#9aa2ad;
-  }
-  body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#eef2f3}
-  .wrap{max-width:980px;margin:28px auto;padding:20px}
-  header{text-align:center;margin-bottom:18px}
-  h1{margin:0;font-size:28px;color:var(--accent2)}
-  .searchRow{display:flex;gap:10px;margin-top:16px}
-  input[type=text]{flex:1;padding:12px;border-radius:10px;border:1px solid #222;background:#0b0c0d;color:#fff}
-  button{background:var(--accent);border:none;color:#021;padding:10px 14px;border-radius:10px;cursor:pointer}
-  button.secondary{background:#323233;color:#fff}
-  .card{background:var(--card);padding:16px;border-radius:12px;margin-top:16px}
-  .muted{color:var(--muted)}
-  #results .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
-  .small{font-size:13px;color:var(--muted)}
-  .actions button{margin-left:8px;padding:6px 8px;border-radius:8px;border:none;cursor:pointer}
-  .actions .cp{background:#1f8bd6;color:#fff}
-  .actions .open{background:#444;color:#fff}
-  .status{margin-top:12px;text-align:center}
-  .proxyList{margin-top:10px;font-size:13px;color:var(--muted)}
-  @media(max-width:720px){.searchRow{flex-direction:column} .actions{display:flex;gap:6px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎵 Roblox Müzik ID Arama (Proxy ile)</title>
+  <style>
+    body { background:#0d0d0d; color:#fff; font-family:Arial, sans-serif; margin:0; padding:0; }
+    header { text-align:center; padding:20px; font-size:22px; font-weight:700; color:#66ccff; }
+    .box { max-width:700px; margin:20px auto; padding:20px; background:#1a1a1a; border-radius:10px; }
+    input { width:75%; padding:10px; border:none; border-radius:5px; }
+    button { padding:10px 15px; border:none; border-radius:5px; cursor:pointer; margin-left:5px; }
+    button.search { background:#00cc99; color:#fff; }
+    button.clear { background:#444; color:#fff; }
+    .status { margin-top:10px; font-size:14px; color:#aaa; }
+    .item { background:#262626; margin:10px 0; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
+    .item .actions button { margin-left:5px; }
+    .small { font-size:13px; }
+    .muted { color:#999; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🎵 Roblox Müzik ID Arama (Proxy ile)</h1>
-    <div class="small muted">Hazır ücretsiz proxy'ler üzerinden deneme deneme. Proxy listesine yenilerini ekleyebilirsin.</div>
-  </header>
-
-  <div class="card">
-    <div class="searchRow">
-      <input id="q" type="text" placeholder="Şarkı adı veya kelime yaz (ör: 'hello')">
-      <button id="searchBtn">Ara</button>
-      <button id="clearBtn" class="secondary">Temizle</button>
-    </div>
-
-    <div class="status" id="status">Durum: Bekliyor</div>
-    <div class="proxyList" id="proxyList"></div>
+  <header>🎵 Roblox Müzik ID Arama (Proxy ile)</header>
+  <div class="box">
+    <input id="query" placeholder="Şarkı adı veya kelime yaz (ör: 'hello')">
+    <button class="search" onclick="search()">Ara</button>
+    <button class="clear" onclick="clearResults()">Temizle</button>
+    <div class="status" id="status"></div>
+    <div id="results"></div>
   </div>
-
-  <div id="results" class="card" style="display:none">
-    <h3>Sonuçlar</h3>
-    <div id="items"></div>
-    <div class="small muted" style="margin-top:8px">Not: Eğer sonuç yoksa Roblox API'yi proxy'lerden hiçbiri geçememiş olabilir.</div>
-  </div>
-</div>
 
 <script>
-/*
-  Basit mantık:
-  - proxies[] içindeki URL'ler, bizim asıl Roblox API URL'imizi GET parametre ile alan "proxy/forward" servisleridir.
-  - searchRoblox() önce tüm proxy'leri sırayla dener. Her proxyyle fetch başarısızsa diğerine geçer.
-  - Başarılı ilk yanıtla sonuçları render eder.
-  - Eğer hepsi başarısızsa hatayı gösterir.
-*/
-
-/* Proxy listesi (isteğe göre yenile) */
 const proxies = [
-  // allorigins (raw)
-  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  // thingproxy
-  (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
-  // corsproxy (might be flaky)
-  (url) => `https://cors.bridged.cc/${url}`,
-  // https://api.codetabs.com/v1/proxy?quest=...
-  (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+  "https://api.allorigins.win/raw?url=",
+  "https://corsproxy.io/?",
+  "https://thingproxy.freeboard.io/fetch/",
+  "https://yacdn.org/proxy/"
 ];
 
-/* Hedef (Roblox katalog arama) - katalog v1 API */
-function buildRobloxUrl(query){
-  // katalog aramasında audio category = "Audio" -> filter uses categoryTypeId? Simpler: use keyword + itemType=Audio
-  // endpoint used: catalog.roblox.com/v1/search/items
-  const q = encodeURIComponent(query);
-  return `https://catalog.roblox.com/v1/search/items/details?keyword=${q}&sortType=Relevance&limit=20&category=Audio`;
+const robloxSearch = "https://catalog.roblox.com/v1/search/items?category=Audio&keyword=";
+const statusEl = document.getElementById("status");
+const resultsEl = document.getElementById("results");
+let tried = 0;
+
+function escapeHtml(t){return t.replace(/[&<>'"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;" }[m]));}
+
+function clearResults(){
+  resultsEl.innerHTML = "";
+  statusEl.innerText = "";
+  document.getElementById("query").value = "";
 }
 
-/* UI elemanları */
-const statusEl = document.getElementById('status');
-const proxyListEl = document.getElementById('proxyList');
-const itemsEl = document.getElementById('items');
-const resultsCard = document.getElementById('results');
-
-function setStatus(text, isError){
-  statusEl.innerHTML = isError ? `<span style="color:#ffb86b">⚠ ${text}</span>` : `<span style="color:#9be7c4">${text}</span>`;
+function search(){
+  const q = document.getElementById("query").value.trim();
+  if(!q){alert("Lütfen bir şarkı adı yaz.");return;}
+  resultsEl.innerHTML = "";
+  statusEl.innerText = "Aranıyor...";
+  tried = 0;
+  tryProxy(q);
 }
 
-/* Render proxy list */
-function renderProxyList(currentIndex=-1){
-  proxyListEl.innerHTML = 'Denenen proxyler: ' + proxies.map((p,i)=> i===currentIndex? `<b style="color:#ffd43b">#${i+1}</b>`: `#${i+1}`).join(' • ');
-}
-
-/* Try fetch through proxy sequence */
-async function tryFetchThroughProxies(targetUrl){
-  // return first successful parsed JSON, or throw
-  let lastError = null;
-  for(let i=0;i<proxies.length;i++){
-    const proxyUrl = proxies[i](targetUrl);
-    renderProxyList(i);
-    setStatus(`Proxy #${i+1} ile istek atılıyor...`);
-    try{
-      const resp = await fetch(proxyUrl, { method:'GET' , headers: { 'Accept': 'application/json' }});
-      // detect non-200
-      if(!resp.ok){
-        lastError = `Proxy #${i+1} HTTP ${resp.status}`;
-        continue;
-      }
-      // try parse as json
-      const txt = await resp.text();
-      // some proxies forward raw JSON, some forward HTML error pages. Try parse:
-      try{
-        const data = JSON.parse(txt);
-        return {data, proxyIndex:i, proxyUrl};
-      }catch(e){
-        // sometimes the body is valid JSON but with leading garbage: try to find first {
-        const firstBrace = txt.indexOf('{');
-        if(firstBrace>=0){
-          try{
-            const fixed = JSON.parse(txt.slice(firstBrace));
-            return {data:fixed, proxyIndex:i, proxyUrl};
-          }catch(e2){
-            lastError = `Proxy #${i+1} dönen veri JSON değil`;
-            continue;
-          }
-        } else {
-          lastError = `Proxy #${i+1} dönen veri JSON değil`;
-          continue;
-        }
-      }
-    }catch(err){
-      lastError = `Proxy #${i+1} hata: ${err.message}`;
-      // küçük gecikme (opsiyonel)
-      await new Promise(r=>setTimeout(r,300));
-      continue;
-    }
-  }
-  throw new Error(lastError || 'Tüm proxyler başarısız');
-}
-
-/* Render sonuçlar (catalog.roblox.com/v1/search/items/details dönerse items field olabilir) */
-function renderResults(data){
-  itemsEl.innerHTML = '';
-  // check possible structures
-  // Catalog v1 may respond with { data: [ ... ] } or { items: [...] } or { errors: ... }
-  let list = [];
-  if(Array.isArray(data)) list = data;
-  else if(data && Array.isArray(data.data)) list = data.data;
-  else if(data && Array.isArray(data.items)) list = data.items;
-  else if(data && Array.isArray(data.collection)) list = data.collection;
-  // If still empty, try to show raw
-  if(!list.length){
-    itemsEl.innerHTML = `<div class="small muted">Beklenmeyen cevap yapısı — ham veri konsola yazıldı. Eğer sonuç görünmüyorsa farklı proxy deneyin.</div>`;
-    console.log('Ham cevap:', data);
+function tryProxy(query){
+  if(tried >= proxies.length){
+    statusEl.innerText = "Tüm proxy denemeleri başarısız oldu.";
     return;
   }
+  const proxy = proxies[tried];
+  statusEl.innerText = `Proxy deneniyor (#${tried+1}): ${proxy}`;
+  fetch(proxy + encodeURIComponent(robloxSearch + encodeURIComponent(query)))
+    .then(r => r.json())
+    .then(data => {
+      statusEl.innerText = `Başarılı! Proxy #${tried+1} ile alındı.`;
+      renderResults(data);
+    })
+    .catch(err => {
+      console.error("Hata:", err);
+      tried++;
+      tryProxy(query);
+    });
+}
 
+function renderResults(data){
+  resultsEl.innerHTML = "";
+  function extractItems(obj){
+    let found = [];
+    if(Array.isArray(obj)){
+      for(const x of obj){ found = found.concat(extractItems(x)); }
+    }else if(obj && typeof obj === 'object'){
+      const possibleId = obj.id || obj.assetId || obj.targetId || null;
+      if(possibleId){
+        const name = obj.name || obj.title || obj.displayName || "İsim yok";
+        found.push({id: possibleId, name});
+      }
+      for(const k in obj){ found = found.concat(extractItems(obj[k])); }
+    }
+    return found;
+  }
+  const list = extractItems(data);
+  if(!list.length){
+    resultsEl.innerHTML = `<div class="small muted">Sonuç bulunamadı. Ham veri konsola yazıldı.</div>`;
+    console.log("Ham veri:", data);
+    return;
+  }
   for(const it of list){
-    // try to pick id and name
-    const name = it.name || it.title || (it.metadata && it.metadata.name) || 'İsim yok';
-    const id = it.id || it.itemId || (it.targetId!==undefined?it.targetId: (it.assetId||''));
-    const type = it.type || it.itemType || it.assetType || (it.itemTypeId?it.itemTypeId:'-');
-
     const div = document.createElement('div');
     div.className = 'item';
     div.innerHTML = `
       <div>
-        <div style="font-weight:700">${escapeHtml(name)}</div>
-        <div class="small muted">ID: ${escapeHtml(String(id))} • Tür: ${escapeHtml(String(type))}</div>
+        <div style="font-weight:700">${escapeHtml(it.name)}</div>
+        <div class="small muted">ID: ${escapeHtml(String(it.id))}</div>
       </div>
       <div class="actions">
-        <button class="cp" data-copy="${escapeHtml(String(id))}">Kopyala</button>
-        <button class="open" data-open="${escapeHtml(String(id))}">Roblox'ta Aç</button>
+        <button onclick="copyId('${escapeHtml(String(it.id))}')">Kopyala</button>
+        <button onclick="openId('${escapeHtml(String(it.id))}')">Roblox'ta Aç</button>
       </div>
     `;
-    itemsEl.appendChild(div);
-  }
-
-  // add event listeners for copy/open
-  itemsEl.querySelectorAll('button.cp').forEach(b=>b.addEventListener('click',e=>{
-    const v = e.currentTarget.getAttribute('data-copy');
-    navigator.clipboard.writeText(v).then(()=> alert('Kopyalandı: ' + v));
-  }));
-  itemsEl.querySelectorAll('button.open').forEach(b=>b.addEventListener('click',e=>{
-    const v = e.currentTarget.getAttribute('data-open');
-    // open asset page — assetId might be needed; try item->target URL
-    window.open(`https://www.roblox.com/library/${v}`, '_blank');
-  }));
-}
-
-/* helper escape */
-function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-/* main search flow */
-async function searchRoblox(query){
-  if(!query || query.trim().length<1){ setStatus('Arama için bir şey yaz.'); return; }
-  resultsCard.style.display='none';
-  itemsEl.innerHTML='';
-  setStatus('Arama başlıyor...');
-  const target = buildRobloxUrl(query);
-  try{
-    const {data, proxyIndex, proxyUrl} = await tryFetchThroughProxies(target);
-    setStatus(`Başarılı! Proxy #${proxyIndex+1} ile alındı.`);
-    renderResults(data);
-    resultsCard.style.display='block';
-  }catch(err){
-    setStatus(`Tüm proxyler başarısız: ${err.message}`, true);
-    resultsCard.style.display='none';
-  } finally {
-    renderProxyList(-1);
+    resultsEl.appendChild(div);
   }
 }
 
-/* UI bağlama */
-document.getElementById('searchBtn').addEventListener('click',()=>{ searchRoblox(document.getElementById('q').value) });
-document.getElementById('clearBtn').addEventListener('click',()=>{
-  document.getElementById('q').value=''; itemsEl.innerHTML=''; resultsCard.style.display='none'; setStatus('Temizlendi');
-});
-
-/* initial render proxy list */
-renderProxyList(-1);
-setStatus('Hazır — arama yapabilirsin.');
+function copyId(id){
+  navigator.clipboard.writeText(id).then(()=>alert("Kopyalandı: " + id));
+}
+function openId(id){
+  window.open("https://www.roblox.com/library/" + id, "_blank");
+}
 </script>
 </body>
 </html>
