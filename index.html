@@ -2,88 +2,193 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎵 Roblox Müzik ID Arama</title>
+  <title>ID Paylaşım Sitesi</title>
   <style>
-    body {
-      background: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-    }
-    h1 {
-      color: cyan;
-    }
-    input {
-      width: 60%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: cyan;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-    .result {
-      margin-top: 30px;
-      text-align: left;
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    .item {
-      padding: 5px 0;
-      border-bottom: 1px solid #333;
-    }
+    body { font-family: Arial, sans-serif; background:#111; color:#eee; }
+    h1, h2 { text-align:center; }
+    .container { max-width:1000px; margin:auto; padding:20px; }
+    .section { background:#222; padding:15px; margin:10px 0; border-radius:10px; }
+    input, button, textarea { padding:8px; margin:5px; border-radius:5px; border:none; }
+    button { cursor:pointer; background:#444; color:#fff; }
+    #login { text-align:center; margin-top:50px; }
+    .user { cursor:pointer; color:#0ff; }
+    .message { border-bottom:1px solid #333; padding:4px; }
+    .muted { color:#f55; }
   </style>
 </head>
 <body>
-  <h1>🎵 Roblox Müzik ID Arama</h1>
-  <input type="text" id="query" placeholder="Şarkı adı yaz (ör: hello)">
-  <button onclick="searchMusic()">Ara</button>
+<div id="login">
+  <h1>🔑 Giriş Yap</h1>
+  <input id="username" placeholder="Kullanıcı adı"><br>
+  <input id="password" type="password" placeholder="Şifre"><br>
+  <button onclick="login()">Giriş</button>
+</div>
 
-  <div id="results" class="result"></div>
+<div id="app" style="display:none">
+  <div class="container">
+    <h1>ID Paylaşım Sitesi</h1>
+    <h2>Hoşgeldin <span id="currentUser"></span> (<span id="role"></span>)</h2>
 
-  <script>
-    async function searchMusic() {
-      const query = document.getElementById("query").value;
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "⏳ Aranıyor...";
+    <!-- Aktif Kullanıcılar -->
+    <div class="section">
+      <h3>🟢 Aktif Kullanıcılar</h3>
+      <ul id="activeUsers"></ul>
+    </div>
 
-      const proxy = "https://api.allorigins.win/raw?url=";
-      const target = `https://catalog.roblox.com/v1/search/items?category=Audio&keyword=${encodeURIComponent(query)}`;
+    <!-- Chat -->
+    <div class="section">
+      <h3>💬 Genel Chat</h3>
+      <div id="chatBox" style="height:150px; overflow-y:auto; background:#111; padding:5px; border:1px solid #444;"></div>
+      <input id="chatInput" placeholder="Mesaj yaz...">
+      <button onclick="sendMessage()">Gönder</button>
+    </div>
 
-      try {
-        const r = await fetch(proxy + encodeURIComponent(target));
-        if (!r.ok) throw new Error("Proxy çalışmadı");
+    <!-- DM -->
+    <div class="section">
+      <h3>📩 DM Kutusu</h3>
+      <div id="dmBox" style="height:100px; overflow-y:auto; background:#111; padding:5px; border:1px solid #444;"></div>
+      <input id="dmTo" placeholder="Kime (kullanıcı adı)">
+      <input id="dmInput" placeholder="Mesaj">
+      <button onclick="sendDM()">Gönder</button>
+    </div>
 
-        const data = await r.json();
+    <!-- Normal ID'ler -->
+    <div class="section">
+      <h3>📀 Normal ID'ler</h3>
+      <ul id="idList"></ul>
+      <div id="idForm"></div>
+    </div>
 
-        if (!data.data || data.data.length === 0) {
-          resultsDiv.innerHTML = "❌ Hiç sonuç bulunamadı.";
-          return;
-        }
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="section" style="display:none">
+      <h3>⚙️ Admin Paneli</h3>
+      <input id="banUser" placeholder="Banlanacak kullanıcı">
+      <button onclick="banUser()">Banla</button><br>
+      <input id="muteUser" placeholder="Mute edilecek kullanıcı">
+      <button onclick="muteUser()">Mute</button>
+    </div>
 
-        resultsDiv.innerHTML = "<h2>Sonuçlar</h2>";
-        data.data.forEach(item => {
-          resultsDiv.innerHTML += `
-            <div class="item">
-              🎶 <b>${item.name}</b><br>
-              ID: ${item.id}
-            </div>
-          `;
-        });
+    <!-- Owner Panel -->
+    <div id="ownerPanel" class="section" style="display:none">
+      <h3>👑 Owner Paneli</h3>
+      <input id="newId" placeholder="Yeni ID">
+      <button onclick="addID()">ID Ekle</button><br>
+      <input id="announce" placeholder="Duyuru">
+      <button onclick="setAnnounce()">Duyuru Yayınla</button>
+      <p id="announcement"></p>
+    </div>
+  </div>
+</div>
 
-      } catch (err) {
-        resultsDiv.innerHTML = "⚠️ Hata: " + err.message;
-      }
-    }
-  </script>
+<script>
+let users = JSON.parse(localStorage.getItem("users")) || {};
+let activeUsers = [];
+let messages = [];
+let dms = [];
+let ids = JSON.parse(localStorage.getItem("ids")) || [
+  "1847392012", "2738192037", "9823749823", "6128371263"
+];
+let bans = [];
+let mutes = [];
+let currentUser = null;
+let currentRole = null;
+let announcement = "";
+
+function login() {
+  let user = document.getElementById("username").value;
+  let pass = document.getElementById("password").value;
+
+  if(user === "admin" && pass === "NEONUM31") {
+    currentRole = "admin";
+  } else if(user === "owner" && pass === "OWNERNEON") {
+    currentRole = "owner";
+  } else {
+    currentRole = "guest";
+  }
+
+  currentUser = user;
+  activeUsers.push(user);
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("currentUser").innerText=user;
+  document.getElementById("role").innerText=currentRole;
+  if(currentRole==="admin") document.getElementById("adminPanel").style.display="block";
+  if(currentRole==="owner") document.getElementById("ownerPanel").style.display="block";
+  if(currentRole!=="guest") document.getElementById("idForm").innerHTML = 
+    '<input id="normalId" placeholder="Normal ID ekle"><button onclick="addNormalID()">Ekle</button>';
+  render();
+}
+
+function render() {
+  let list = document.getElementById("activeUsers");
+  list.innerHTML="";
+  activeUsers.forEach(u=>{
+    let li=document.createElement("li");
+    li.innerText=u;
+    li.className="user";
+    li.onclick=()=>document.getElementById("dmTo").value=u;
+    list.appendChild(li);
+  });
+
+  let idL=document.getElementById("idList");
+  idL.innerHTML="";
+  ids.forEach(i=>{
+    let li=document.createElement("li");
+    li.innerText=i;
+    idL.appendChild(li);
+  });
+
+  document.getElementById("chatBox").innerHTML=messages.map(m=>`<div class="message">${m}</div>`).join("");
+  document.getElementById("dmBox").innerHTML=dms.filter(d=>d.to===currentUser||d.from===currentUser).map(d=>`<div class="message"><b>${d.from} → ${d.to}:</b> ${d.msg}</div>`).join("");
+  document.getElementById("announcement").innerText=announcement;
+}
+
+function sendMessage() {
+  if(mutes.includes(currentUser)) { alert("Mute edilmissin!"); return; }
+  let msg=document.getElementById("chatInput").value;
+  if(msg.trim()!=="") {
+    messages.push(currentUser+": "+msg);
+    render();
+  }
+  document.getElementById("chatInput").value="";
+}
+
+function sendDM() {
+  let to=document.getElementById("dmTo").value;
+  let msg=document.getElementById("dmInput").value;
+  if(to && msg) {
+    dms.push({from:currentUser,to,msg});
+    render();
+  }
+  document.getElementById("dmInput").value="";
+}
+
+function addNormalID() {
+  let id=document.getElementById("normalId").value;
+  if(id) { ids.push(id); localStorage.setItem("ids",JSON.stringify(ids)); render(); }
+}
+
+function addID() {
+  if(currentRole!=="owner") return;
+  let id=document.getElementById("newId").value;
+  if(id) { ids.push(id); localStorage.setItem("ids",JSON.stringify(ids)); render(); }
+}
+
+function setAnnounce() {
+  if(currentRole!=="owner") return;
+  announcement=document.getElementById("announce").value;
+  render();
+}
+
+function banUser() {
+  let u=document.getElementById("banUser").value;
+  if(u) { bans.push(u); alert(u+" banlandı!"); }
+}
+
+function muteUser() {
+  let u=document.getElementById("muteUser").value;
+  if(u) { mutes.push(u); alert(u+" mute edildi!"); }
+}
+</script>
 </body>
 </html>
