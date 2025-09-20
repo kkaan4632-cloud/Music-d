@@ -35,7 +35,7 @@
     <header>
       <h1>🎵 Roblox Müzik ID Paylaşım</h1>
       <div class="top-actions">
-        <div id="announceBar" style="background:#ffd43b;color:#111;padding:6px 10px;border-radius:8px;font-weight:700;display:none">YENİ: Güncelleme yakında!</div>
+        <div id="announceBar" style="background:#ffd43b;color:#111;padding:6px 10px;border-radius:8px;font-weight:700;display:none"></div>
         <div id="userBadge" class="tag">Guest</div>
       </div>
     </header>
@@ -59,10 +59,6 @@
             <div>
               <h2 style="margin:0" id="welcome">Hoş geldin, Guest</h2>
               <div class="small muted">Rol: <span id="role">guest</span></div>
-            </div>
-            <div style="margin-left:auto;text-align:right">
-              <div class="small muted">Aktif kullanıcı: <span id="activeCount">0</span></div>
-              <div id="activeList" style="margin-top:6px"></div>
             </div>
           </div>
         </div>
@@ -109,13 +105,8 @@
         <!-- Owner Panel -->
         <div id="ownerPanel" class="card" style="display:none">
           <h3 class="small muted">👑 Owner Paneli</h3>
-          <div style="margin-top:8px">
-            <label class="small muted">Duyuru</label>
-            <div style="display:flex;gap:8px">
-              <input id="announceInput" placeholder="Duyuru metni">
-              <button class="btn" id="announceBtn">Yayınla</button>
-            </div>
-          </div>
+          <input id="announceInput" placeholder="Duyuru metni">
+          <button class="btn" id="announceBtn">Yayınla</button>
           <div style="margin-top:12px">
             <label class="small muted">Logs</label>
             <div id="ownerLogs" style="background:#0b0c0d;padding:8px;border-radius:6px;height:140px;overflow:auto"></div>
@@ -136,7 +127,6 @@
     const ADMIN_PASS = "NEONUM31";
     const OWNER_PASS = "OWNERNEON";
 
-    /* Session */
     let currentUser = null;
     let currentRole = "guest";
 
@@ -152,6 +142,28 @@
     const userBadge = document.getElementById("userBadge");
     const ownerPanel = document.getElementById("ownerPanel");
     const adminPanel = document.getElementById("adminPanel");
+    const idListContainer = document.getElementById("idListContainer");
+    const newIdInput = document.getElementById("newIdInput");
+    const newIdCategory = document.getElementById("newIdCategory");
+    const addIdBtn = document.getElementById("addIdBtn");
+    const idAddBox = document.getElementById("idAddBox");
+    const chatBox = document.getElementById("chatBox");
+    const chatInput = document.getElementById("chatInput");
+    const sendChatBtn = document.getElementById("sendChatBtn");
+    const dmBox = document.getElementById("dmBox");
+    const dmTo = document.getElementById("dmTo");
+    const dmText = document.getElementById("dmText");
+    const sendDmBtn = document.getElementById("sendDmBtn");
+    const announceBar = document.getElementById("announceBar");
+    const announceInput = document.getElementById("announceInput");
+    const announceBtn = document.getElementById("announceBtn");
+    const ownerLogs = document.getElementById("ownerLogs");
+
+    /* Data */
+    let ids = [];
+    let chatMessages = [];
+    let dms = [];
+    let logs = [];
 
     /* Giriş */
     loginBtn.onclick = () => {
@@ -176,6 +188,7 @@
 
       if(role === "owner"){ ownerPanel.style.display = "block"; }
       if(role === "admin"){ adminPanel.style.display = "block"; }
+      if(role === "guest"){ idAddBox.style.display = "block"; }
     };
 
     /* Çıkış */
@@ -187,6 +200,86 @@
       logoutBtn.style.display = "none";
       userBadge.textContent = "Guest";
     };
+
+    /* ID ekle */
+    addIdBtn.onclick = () => {
+      const val = newIdInput.value.trim();
+      if(!val){ return; }
+      ids.push({val,cat:newIdCategory.value,user:currentUser});
+      renderIds();
+      newIdInput.value="";
+    };
+
+    function renderIds(){
+      idListContainer.innerHTML = "";
+      ids.forEach(id=>{
+        const div=document.createElement("div");
+        div.className="id-item";
+        div.innerHTML = `<span>${id.val} <span class="small muted">(${id.cat})</span></span><span class="small muted">by ${id.user}</span>`;
+        idListContainer.appendChild(div);
+      });
+    }
+
+    /* Chat */
+    sendChatBtn.onclick = ()=>{
+      const txt = chatInput.value.trim();
+      if(!txt) return;
+      chatMessages.push({user:currentUser,txt});
+      renderChat();
+      chatInput.value="";
+    };
+
+    function renderChat(){
+      chatBox.innerHTML="";
+      chatMessages.forEach(m=>{
+        const div=document.createElement("div");
+        div.innerHTML=`<b>${m.user}:</b> ${m.txt}`;
+        chatBox.appendChild(div);
+      });
+      chatBox.scrollTop=chatBox.scrollHeight;
+    }
+
+    /* DM */
+    sendDmBtn.onclick = ()=>{
+      const to=dmTo.value.trim();
+      const txt=dmText.value.trim();
+      if(!to||!txt) return;
+      dms.push({from:currentUser,to,txt});
+      renderDms();
+      dmText.value="";
+    };
+
+    function renderDms(){
+      dmBox.innerHTML="";
+      dms.forEach(m=>{
+        if(m.to===currentUser || m.from===currentUser){
+          const div=document.createElement("div");
+          div.innerHTML=`<b>${m.from} → ${m.to}:</b> ${m.txt}`;
+          dmBox.appendChild(div);
+        }
+      });
+      dmBox.scrollTop=dmBox.scrollHeight;
+    }
+
+    /* Owner duyuru */
+    announceBtn.onclick=()=>{
+      const txt=announceInput.value.trim();
+      if(!txt) return;
+      announceBar.textContent=txt;
+      announceBar.style.display="inline-block";
+      logs.push("Duyuru yayınlandı: "+txt);
+      renderLogs();
+    };
+
+    function renderLogs(){
+      ownerLogs.innerHTML="";
+      logs.forEach(l=>{
+        const div=document.createElement("div");
+        div.textContent=l;
+        ownerLogs.appendChild(div);
+      });
+      ownerLogs.scrollTop=ownerLogs.scrollHeight;
+    }
   </script>
 </body>
 </html>
