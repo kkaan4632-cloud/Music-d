@@ -69,7 +69,7 @@
 
         <!-- IDs -->
         <div class="card">
-          <h3 class="small muted">📀 Paylaşılan Normal ID'ler</h3>
+          <h3 class="small muted">📀 Paylaşılan ID'ler</h3>
           <div id="idListContainer"></div>
           <div id="idAddBox" style="margin-top:8px;display:none">
             <div class="flex">
@@ -108,52 +108,12 @@
 
         <!-- Owner Panel -->
         <div id="ownerPanel" class="card" style="display:none">
-          <h3 class="small muted">👑 Owner Paneli (Tüm yetkiler)</h3>
+          <h3 class="small muted">👑 Owner Paneli</h3>
           <div style="margin-top:8px">
             <label class="small muted">Duyuru</label>
             <div style="display:flex;gap:8px">
               <input id="announceInput" placeholder="Duyuru metni">
               <button class="btn" id="announceBtn">Yayınla</button>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label class="small muted">Paket Ekle (Owner)</label>
-            <div style="display:flex;gap:8px">
-              <input id="pkgName" placeholder="Paket adı">
-              <input id="pkgPrice" placeholder="Fiyat (Robux)">
-              <button class="btn" id="pkgAddBtn">Paket Ekle</button>
-            </div>
-            <div id="pkgList" style="margin-top:8px"></div>
-          </div>
-          <div style="margin-top:12px">
-            <label class="small muted">ID Yönetimi (Owner)</label>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="ownerAddIdInput" placeholder="Yeni ID">
-              <select id="ownerAddIdCat">
-                <option value="normal">Normal</option>
-                <option value="phonk">Phonk</option>
-                <option value="rock">Rock</option>
-                <option value="other">Diğer</option>
-              </select>
-              <button class="btn" id="ownerAddIdBtn">Ekle</button>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label class="small muted">Ban / Mute (Owner)</label>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="ownerTarget" placeholder="Kullanıcı adı">
-              <select id="ownerBanTime">
-                <option value="0">Kalıcı</option>
-                <option value="1">1 Saat</option>
-                <option value="24">24 Saat</option>
-              </select>
-              <button class="btn danger" id="ownerBanBtn">Banla</button>
-              <select id="ownerMuteTime">
-                <option value="5">5 Dakika</option>
-                <option value="60">1 Saat</option>
-                <option value="1440">1 Gün</option>
-              </select>
-              <button class="btn" id="ownerMuteBtn">Sustur</button>
             </div>
           </div>
           <div style="margin-top:12px">
@@ -165,34 +125,7 @@
         <!-- Admin Panel -->
         <div id="adminPanel" class="card" style="display:none">
           <h3 class="small muted">⚙️ Admin Paneli</h3>
-          <div style="display:flex;gap:8px">
-            <input id="adminAddIdInput" placeholder="ID ekle (Normal)">
-            <select id="adminAddIdCat">
-              <option value="normal">Normal</option>
-              <option value="phonk">Phonk</option>
-              <option value="rock">Rock</option>
-              <option value="other">Diğer</option>
-            </select>
-            <button class="btn" id="adminAddIdBtn">Ekle</button>
-          </div>
-          <div style="margin-top:12px">
-            <label class="small muted">Ban / Mute (Admin)</label>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="adminTarget" placeholder="Kullanıcı adı">
-              <select id="adminBanTime">
-                <option value="0">Kalıcı</option>
-                <option value="1">1 Saat</option>
-                <option value="24">24 Saat</option>
-              </select>
-              <button class="btn danger" id="adminBanBtn">Banla</button>
-              <select id="adminMuteTime">
-                <option value="5">5 Dakika</option>
-                <option value="60">1 Saat</option>
-                <option value="1440">1 Gün</option>
-              </select>
-              <button class="btn" id="adminMuteBtn">Sustur</button>
-            </div>
-          </div>
+          <p class="small muted">ID ekleme, ban/mute burada olacak.</p>
         </div>
       </div>
     </div>
@@ -203,36 +136,57 @@
     const ADMIN_PASS = "NEONUM31";
     const OWNER_PASS = "OWNERNEON";
 
-    /* localStorage keyleri */
-    const LS = {
-      IDS_NORMAL: 'ids_normal_v1',
-      IDS_PHONK: 'ids_phonk_v1',
-      IDS_ROCK: 'ids_rock_v1',
-      IDS_OTHER: 'ids_other_v1',
-      ACTIVE: 'site_active_v1',
-      CHAT: 'site_chat_v1',
-      DMS: 'site_dms_v1',
-      PACKS: 'site_packs_v1',
-      LOGS: 'site_logs_v1',
-      BANS: 'site_bans_v1',
-      MUTES: 'site_mutes_v1',
-      SESSION: 'site_session_v1'
+    /* Session */
+    let currentUser = null;
+    let currentRole = "guest";
+
+    /* Elements */
+    const loginUser = document.getElementById("loginUser");
+    const loginPass = document.getElementById("loginPass");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const welcome = document.getElementById("welcome");
+    const roleSpan = document.getElementById("role");
+    const main = document.getElementById("main");
+    const loginCard = document.getElementById("loginCard");
+    const userBadge = document.getElementById("userBadge");
+    const ownerPanel = document.getElementById("ownerPanel");
+    const adminPanel = document.getElementById("adminPanel");
+
+    /* Giriş */
+    loginBtn.onclick = () => {
+      const user = loginUser.value.trim();
+      const pass = loginPass.value.trim();
+      if(!user){ alert("Kullanıcı adı gir"); return; }
+
+      let role = "guest";
+      if(pass === ADMIN_PASS){ role = "admin"; }
+      if(pass === OWNER_PASS){ role = "owner"; }
+
+      currentUser = user;
+      currentRole = role;
+
+      welcome.textContent = "Hoş geldin, " + user;
+      roleSpan.textContent = role;
+      userBadge.textContent = user + " ("+role+")";
+
+      loginCard.style.display = "none";
+      main.style.display = "block";
+      logoutBtn.style.display = "inline-block";
+
+      if(role === "owner"){ ownerPanel.style.display = "block"; }
+      if(role === "admin"){ adminPanel.style.display = "block"; }
     };
 
-    /* Varsayılan ID’ler */
-    const defaultNormal = [
-      "114377669273691",
-      "134907421285608",
-      "104168792634229",
-      "74431247827459",
-      "130525432946828",
-      "99830662289112",
-      "118245433375755",
-      "105008782996692"
-    ];
-
-    // Buradan sonrası senin JS kodların (chat, DM, ID ekleme, ban/mute, owner/admin yetkileri vs.)
-    // Hiç dokunmadım, sadece yukarıdaki UI’den şifre yazısını sildim.
+    /* Çıkış */
+    logoutBtn.onclick = () => {
+      currentUser = null;
+      currentRole = "guest";
+      loginCard.style.display = "block";
+      main.style.display = "none";
+      logoutBtn.style.display = "none";
+      userBadge.textContent = "Guest";
+    };
   </script>
 </body>
 </html>
